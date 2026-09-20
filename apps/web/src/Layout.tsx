@@ -76,6 +76,9 @@ export function Layout() {
 
   const activeToolId = location.pathname.match(/^\/tools\/(.+)$/)?.[1];
   const favoritesActive = location.pathname === "/favoris";
+  // On a tool page, the rail must highlight that tool's real category — not whatever
+  // category filter was last clicked, which could belong to a different section entirely.
+  const activeCategory = activeToolId ? TOOLS.find((t) => t.id === activeToolId)?.category ?? categoryFilter : categoryFilter;
 
   const context: AppContext = {
     favorites,
@@ -94,7 +97,7 @@ export function Layout() {
       <div className="shell">
         <Rail
           categories={railCategories}
-          active={categoryFilter}
+          active={activeCategory}
           activeToolId={activeToolId}
           favoritesCount={favorites.size}
           onSelect={handleRailSelect}

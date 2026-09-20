@@ -7,7 +7,8 @@ export type IconName =
   | "check"
   | "arrow-left"
   | "arrow-right"
-  | "gauge";
+  | "gauge"
+  | "chevron";
 
 export function IconSprite() {
   return (
@@ -59,6 +60,9 @@ export function IconSprite() {
           <circle cx="10" cy="10" r="7.6" />
           <line x1="10" y1="10" x2="13.6" y2="6" strokeLinecap="round" />
           <circle cx="10" cy="10" r="1.1" fill="currentColor" stroke="none" />
+        </symbol>
+        <symbol id="i-chevron" viewBox="0 0 20 20">
+          <polyline points="7 4.5 13 10 7 15.5" />
         </symbol>
       </defs>
     </svg>

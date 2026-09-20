@@ -124,6 +124,37 @@
   display: flex;
   flex-direction: column;
 }
+.rail-category-row {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+.rail-category-row .rail-item {
+  flex: 1;
+  min-width: 0;
+}
+.rail-chevron {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  color: var(--text-tertiary);
+  transition: background 0.15s, color 0.15s;
+}
+.rail-chevron:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.rail-chevron .icon {
+  width: 13px;
+  height: 13px;
+  transition: transform 0.15s;
+}
+.rail-chevron .icon.is-open {
+  transform: rotate(90deg);
+}
 .rail-tools {
   display: flex;
   flex-direction: column;
