@@ -68,6 +68,10 @@ const AesTool = lazy(() => import("./aes/AesTool").then((m) => ({ default: m.Aes
 const PasswordStrengthTool = lazy(() =>
   import("./password-strength/PasswordStrengthTool").then((m) => ({ default: m.PasswordStrengthTool })),
 );
+const PasswordGeneratorTool = lazy(() =>
+  import("./password-generator/PasswordGeneratorTool").then((m) => ({ default: m.PasswordGeneratorTool })),
+);
+const AiChatTool = lazy(() => import("./ai-chat/AiChatTool").then((m) => ({ default: m.AiChatTool })));
 const CronTool = lazy(() => import("./cron/CronTool").then((m) => ({ default: m.CronTool })));
 const MarkdownTool = lazy(() => import("./markdown/MarkdownTool").then((m) => ({ default: m.MarkdownTool })));
 const XmlFormatterTool = lazy(() =>
@@ -198,6 +202,14 @@ export const TOOLS: ToolDefinition[] = [
     description: "Estime l'entropie et détecte les motifs faibles d'un mot de passe.",
     status: "ready",
     Component: PasswordStrengthTool,
+  },
+  {
+    id: "password-generator",
+    name: "Générateur de mot de passe",
+    category: "Crypto",
+    description: "Longueur, jeux de caractères et exclusion des caractères ambigus, avec indicateur de force.",
+    status: "ready",
+    Component: PasswordGeneratorTool,
   },
 
   // Web
@@ -475,9 +487,9 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     id: "markdown",
-    name: "Aperçu Markdown",
+    name: "Éditeur Markdown",
     category: "Text",
-    description: "Affiche le rendu Markdown au fil de la frappe.",
+    description: "Créez, éditez et prévisualisez des documents Markdown, sauvegardés en local.",
     status: "ready",
     Component: MarkdownTool,
   },
@@ -664,6 +676,18 @@ export const TOOLS: ToolDefinition[] = [
     description: "Convertit un bloc PEM en DER (hex/base64) et inversement.",
     status: "ready",
     Component: PemDerTool,
+  },
+
+  // IA
+  {
+    id: "ai-chat",
+    name: "Chat IA",
+    category: "IA",
+    description: "Discute en streaming avec l'API de chat de votre choix — URL et en-têtes configurables.",
+    status: "ready",
+    Component: AiChatTool,
+    statusLabel: "Envoie vos messages à l'URL configurée — seul outil réseau de Workbench",
+    statusTone: "neutral",
   },
 
   // Data

@@ -41,7 +41,8 @@ export default function ToolPage() {
         title={tool.name}
         description={tool.description}
         onBack={goHome}
-        statusLabel="Calculé en local — aucune requête réseau"
+        statusLabel={tool.statusLabel ?? "Calculé en local — aucune requête réseau"}
+        statusTone={tool.statusTone}
       />
       {tool.custom && (
         <div className="panel-tools mb-lg">
