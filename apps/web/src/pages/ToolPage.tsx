@@ -1,14 +1,13 @@
 import { Suspense } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
-import { ToolPageHeader } from "@toolbox/ui";
-import { TOOLS } from "@toolbox/tools";
+import { Icon, ToolPageHeader } from "@toolbox/ui";
 import type { AppContext } from "../Layout";
 
 export default function ToolPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { setCategoryFilter } = useOutletContext<AppContext>();
-  const tool = TOOLS.find((t) => t.id === id);
+  const { setCategoryFilter, tools, removeCustomTool } = useOutletContext<AppContext>();
+  const tool = tools.find((t) => t.id === id);
 
   function goHome() {
     setCategoryFilter("all");
@@ -30,6 +29,12 @@ export default function ToolPage() {
 
   const ToolComponent = tool.Component;
 
+  function handleDelete() {
+    if (!window.confirm(`Supprimer définitivement l'outil « ${tool!.name} » ?`)) return;
+    removeCustomTool(tool!.id);
+    goHome();
+  }
+
   return (
     <div>
       <ToolPageHeader
@@ -38,6 +43,17 @@ export default function ToolPage() {
         onBack={goHome}
         statusLabel="Calculé en local — aucune requête réseau"
       />
+      {tool.custom && (
+        <div className="panel-tools mb-lg">
+          <button type="button" className="btn" onClick={() => navigate(`/creer-outil?id=${tool.id}`)}>
+            Modifier
+          </button>
+          <button type="button" className="btn" onClick={handleDelete}>
+            <Icon name="trash" />
+            Supprimer
+          </button>
+        </div>
+      )}
       <Suspense fallback={<div className="empty-state">Chargement de l'outil…</div>}>
         <ToolComponent />
       </Suspense>

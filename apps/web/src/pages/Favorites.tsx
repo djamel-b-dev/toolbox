@@ -1,11 +1,10 @@
 import { Link, useOutletContext } from "react-router-dom";
 import { ToolCard } from "@toolbox/ui";
-import { TOOLS } from "@toolbox/tools";
 import type { AppContext } from "../Layout";
 
 export default function Favorites() {
-  const { favorites, toggleFavorite, openTool } = useOutletContext<AppContext>();
-  const favoriteTools = TOOLS.filter((t) => favorites.has(t.id));
+  const { favorites, toggleFavorite, openTool, tools } = useOutletContext<AppContext>();
+  const favoriteTools = tools.filter((t) => favorites.has(t.id));
 
   return (
     <>
@@ -31,7 +30,7 @@ export default function Favorites() {
               name={tool.name}
               category={tool.category}
               description={tool.description}
-              index={TOOLS.indexOf(tool)}
+              index={tools.indexOf(tool)}
               favorite
               onToggleFavorite={toggleFavorite}
               onOpen={openTool}

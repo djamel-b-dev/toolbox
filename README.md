@@ -20,6 +20,22 @@ category rail, the command palette, and routing all pick it up automatically.
 tools still appear in the grid (to validate the UI at full scale) but open to an
 empty state instead of a component.
 
+## Custom tools
+
+Anyone using the app can add their own tool from **Créer un outil** in the sidebar,
+without touching code or rebuilding. A custom tool is a small JavaScript function
+(`input => output`) plus a name, description and category — either an existing one
+or a brand new one, which then gets its own pinned section in the sidebar, right
+under Favoris. Custom tools are stored in `localStorage`
+(`workbench:custom-tools`, see `packages/core/src/useCustomTools.ts`) and merged
+with the built-in registry everywhere: the home grid, the sidebar, the command
+palette, and favorites.
+
+This is local, single-user customization, not a plugin marketplace: the code runs
+unsandboxed, with the same permissions as the page — appropriate for scripts you
+wrote yourself, not for installing something from someone else. The UI says as
+much. A sandboxed, shareable plugin format is a bigger, separate project.
+
 ## Develop
 
 ```bash

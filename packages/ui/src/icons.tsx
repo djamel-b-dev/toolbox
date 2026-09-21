@@ -8,7 +8,9 @@ export type IconName =
   | "arrow-left"
   | "arrow-right"
   | "gauge"
-  | "chevron";
+  | "chevron"
+  | "plus"
+  | "trash";
 
 export function IconSprite() {
   return (
@@ -63,6 +65,15 @@ export function IconSprite() {
         </symbol>
         <symbol id="i-chevron" viewBox="0 0 20 20">
           <polyline points="7 4.5 13 10 7 15.5" />
+        </symbol>
+        <symbol id="i-plus" viewBox="0 0 20 20">
+          <line x1="10" y1="4" x2="10" y2="16" />
+          <line x1="4" y1="10" x2="16" y2="10" />
+        </symbol>
+        <symbol id="i-trash" viewBox="0 0 20 20">
+          <path d="M4 6h12" />
+          <path d="M8 6V4.5A1 1 0 0 1 9 3.5h2A1 1 0 0 1 12 4.5V6" />
+          <path d="M5.5 6l.6 9.5A1.5 1.5 0 0 0 7.6 17h4.8a1.5 1.5 0 0 0 1.5-1.5L14.5 6" />
         </symbol>
       </defs>
     </svg>

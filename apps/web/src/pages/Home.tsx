@@ -1,12 +1,11 @@
 import { Link, useOutletContext } from "react-router-dom";
 import { RecentCard, ToolCard } from "@toolbox/ui";
-import { TOOLS } from "@toolbox/tools";
 import type { AppContext } from "../Layout";
 
 export default function Home() {
-  const { favorites, toggleFavorite, recentIds, categoryFilter, openTool } = useOutletContext<AppContext>();
+  const { favorites, toggleFavorite, recentIds, categoryFilter, openTool, tools } = useOutletContext<AppContext>();
 
-  const visibleTools = categoryFilter === "all" ? TOOLS : TOOLS.filter((t) => t.category === categoryFilter);
+  const visibleTools = categoryFilter === "all" ? tools : tools.filter((t) => t.category === categoryFilter);
 
   return (
     <>
@@ -28,7 +27,7 @@ export default function Home() {
       </div>
       <div className="strip">
         {recentIds.map((id, i) => {
-          const tool = TOOLS.find((t) => t.id === id);
+          const tool = tools.find((t) => t.id === id);
           if (!tool) return null;
           return <RecentCard key={id} id={id} name={tool.name} index={i} onOpen={openTool} />;
         })}
@@ -46,7 +45,7 @@ export default function Home() {
             name={tool.name}
             category={tool.category}
             description={tool.description}
-            index={TOOLS.indexOf(tool)}
+            index={tools.indexOf(tool)}
             favorite={favorites.has(tool.id)}
             onToggleFavorite={toggleFavorite}
             onOpen={openTool}

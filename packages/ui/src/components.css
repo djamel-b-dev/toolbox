@@ -114,11 +114,16 @@
   gap: 0.15rem;
   overflow-y: auto;
 }
-.rail-favorites {
-  margin-bottom: 1rem;
-}
 .rail-favorites-icon {
   color: var(--accent);
+}
+.rail-create {
+  margin-bottom: 1rem;
+  color: var(--text-secondary);
+}
+.rail-create .icon {
+  width: 14px;
+  height: 14px;
 }
 .rail-group {
   display: flex;
