@@ -13,9 +13,24 @@ interface CommandPaletteProps {
   tools: PaletteTool[];
   onClose: () => void;
   onSelect: (id: string) => void;
+  ariaLabel: string;
+  inputPlaceholder: string;
+  noResultsLabel: string;
+  toolsGroupLabel: string;
+  previewOnlySuffix: string;
 }
 
-export function CommandPalette({ open, tools, onClose, onSelect }: CommandPaletteProps) {
+export function CommandPalette({
+  open,
+  tools,
+  onClose,
+  onSelect,
+  ariaLabel,
+  inputPlaceholder,
+  noResultsLabel,
+  toolsGroupLabel,
+  previewOnlySuffix,
+}: CommandPaletteProps) {
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -68,24 +83,24 @@ export function CommandPalette({ open, tools, onClose, onSelect }: CommandPalett
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="palette" role="dialog" aria-modal="true" aria-label="Palette de commandes">
+      <div className="palette" role="dialog" aria-modal="true" aria-label={ariaLabel}>
         <div className="palette-input-row">
           <Icon name="search" />
           <input
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Rechercher un outil, ex. « hash », « json »…"
+            placeholder={inputPlaceholder}
             autoComplete="off"
           />
           <kbd>esc</kbd>
         </div>
         <div className="palette-results">
           {filtered.length === 0 ? (
-            <div className="palette-empty">Aucun outil ne correspond.</div>
+            <div className="palette-empty">{noResultsLabel}</div>
           ) : (
             <>
-              <div className="palette-group">Outils</div>
+              <div className="palette-group">{toolsGroupLabel}</div>
               {filtered.map((t, i) => (
                 <button
                   key={t.id}
@@ -98,7 +113,7 @@ export function CommandPalette({ open, tools, onClose, onSelect }: CommandPalett
                     <span className="pi-name">{t.name}</span>
                     <span className="pi-cat">
                       {t.category}
-                      {!t.ready ? " · aperçu uniquement" : ""}
+                      {!t.ready ? previewOnlySuffix : ""}
                     </span>
                   </span>
                   {t.ready && <Icon name="arrow-right" />}

@@ -9,7 +9,7 @@ function escapeWifi(value: string): string {
 }
 
 export function WifiQrCodeTool() {
-  const [ssid, setSsid] = useState("Workbench-5G");
+  const [ssid, setSsid] = useState("Toolbox-5G");
   const [password, setPassword] = useState("");
   const [security, setSecurity] = useState<Security>("WPA");
   const [hidden, setHidden] = useState(false);

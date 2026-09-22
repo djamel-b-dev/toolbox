@@ -2,7 +2,7 @@ import { useState } from "react";
 import { CopyButton } from "@toolbox/ui";
 
 export function UrlParserTool() {
-  const [input, setInput] = useState("https://workbench.dev:8443/search?q=hash+generator&lang=fr#results");
+  const [input, setInput] = useState("https://toolbox.dev:8443/search?q=hash+generator&lang=fr#results");
 
   let url: URL | null = null;
   let error = "";

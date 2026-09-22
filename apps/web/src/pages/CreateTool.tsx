@@ -5,17 +5,13 @@ import { CATEGORIES } from "@toolbox/tools";
 import type { AppContext } from "../Layout";
 import { runCustomCode } from "../CustomToolRunner";
 
-const DEFAULT_CODE = `// "input" contient le texte de la zone d'entrée.
-// Renvoyez la chaîne à afficher en sortie.
-return input.toUpperCase();`;
-
 type CategoryMode = "existing" | "new";
 
 export default function CreateTool() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editId = searchParams.get("id");
-  const { customTools, addCustomTool, updateCustomTool } = useOutletContext<AppContext>();
+  const { customTools, addCustomTool, updateCustomTool, strings } = useOutletContext<AppContext>();
 
   const editingTool = editId ? customTools.find((t) => t.id === editId) : undefined;
 
@@ -31,8 +27,8 @@ export default function CreateTool() {
     editingTool && !editingTool.isNewCategory ? editingTool.category : (existingCategoryOptions[0] ?? "Crypto"),
   );
   const [newCategory, setNewCategory] = useState(editingTool?.isNewCategory ? editingTool.category : "");
-  const [code, setCode] = useState(editingTool?.code ?? DEFAULT_CODE);
-  const [testInput, setTestInput] = useState("Hello, Workbench 👋");
+  const [code, setCode] = useState(editingTool?.code ?? strings.createTool.defaultCode);
+  const [testInput, setTestInput] = useState(strings.createTool.testInputDefault);
   const [testOutput, setTestOutput] = useState("");
   const [testError, setTestError] = useState("");
   const [saveError, setSaveError] = useState("");
@@ -49,13 +45,13 @@ export default function CreateTool() {
       .catch((e) => {
         if (!cancelled) {
           setTestOutput("");
-          setTestError(e instanceof Error ? e.message : "Ce code a levé une erreur.");
+          setTestError(e instanceof Error ? e.message : strings.createTool.runtimeErrorFallback);
         }
       });
     return () => {
       cancelled = true;
     };
-  }, [code, testInput]);
+  }, [code, testInput, strings]);
 
   const category = categoryMode === "new" ? newCategory.trim() : existingCategory;
   const isNewCategory = categoryMode === "new";
@@ -63,21 +59,19 @@ export default function CreateTool() {
   function handleSave() {
     setSaveError("");
     if (!name.trim()) {
-      setSaveError("Le nom est obligatoire.");
+      setSaveError(strings.createTool.errorNameRequired);
       return;
     }
     if (!category) {
-      setSaveError("Choisissez ou nommez une catégorie.");
+      setSaveError(strings.createTool.errorCategoryRequired);
       return;
     }
     if (!code.trim()) {
-      setSaveError("Le code ne peut pas être vide.");
+      setSaveError(strings.createTool.errorCodeRequired);
       return;
     }
     if (isNewCategory && CATEGORIES.includes(category)) {
-      setSaveError(
-        "Ce nom de catégorie existe déjà parmi les catégories intégrées — choisissez-en un autre, ou sélectionnez « Existante » ci-dessus.",
-      );
+      setSaveError(strings.createTool.errorCategoryExists);
       return;
     }
 
@@ -94,47 +88,48 @@ export default function CreateTool() {
   return (
     <div>
       <div className="page-head">
-        <h1>{editingTool ? "Modifier l'outil" : "Créer un outil"}</h1>
-        <p className="lede">
-          Écrivez une fonction JavaScript qui transforme une entrée en sortie. Ce code s'exécute directement dans
-          votre navigateur, avec les mêmes permissions que la page — n'utilisez que du code que vous avez écrit
-          vous-même ou en qui vous avez confiance.
-        </p>
+        <h1>{editingTool ? strings.createTool.titleEdit : strings.createTool.titleNew}</h1>
+        <p className="lede">{strings.createTool.intro}</p>
       </div>
 
       <div className="field-row">
         <div className="field">
-          <span className="field-label">Nom</span>
-          <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Mon convertisseur" />
+          <span className="field-label">{strings.createTool.nameLabel}</span>
+          <input
+            className="input"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder={strings.createTool.namePlaceholder}
+          />
         </div>
       </div>
       <div className="field-row">
         <div className="field">
-          <span className="field-label">Description</span>
+          <span className="field-label">{strings.createTool.descriptionLabel}</span>
           <input
             className="input"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Ce que fait l'outil, en une phrase."
+            placeholder={strings.createTool.descriptionPlaceholder}
           />
         </div>
       </div>
 
       <div className="field-row">
         <div className="field" style={{ maxWidth: 260 }}>
-          <span className="field-label">Catégorie</span>
+          <span className="field-label">{strings.createTool.categoryLabel}</span>
           <SegmentedControl<CategoryMode>
             value={categoryMode}
             onChange={setCategoryMode}
             options={[
-              { value: "existing", label: "Existante" },
-              { value: "new", label: "Nouvelle" },
+              { value: "existing", label: strings.createTool.categoryExisting },
+              { value: "new", label: strings.createTool.categoryNew },
             ]}
           />
         </div>
         {categoryMode === "existing" ? (
           <div className="field">
-            <span className="field-label">Choisir</span>
+            <span className="field-label">{strings.createTool.chooseLabel}</span>
             <select className="input" value={existingCategory} onChange={(e) => setExistingCategory(e.target.value)}>
               {existingCategoryOptions.map((c) => (
                 <option key={c} value={c}>
@@ -145,26 +140,37 @@ export default function CreateTool() {
           </div>
         ) : (
           <div className="field">
-            <span className="field-label">Nom de la nouvelle catégorie</span>
-            <input className="input" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} placeholder="Mes outils" />
+            <span className="field-label">{strings.createTool.newCategoryLabel}</span>
+            <input
+              className="input"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              placeholder={strings.createTool.newCategoryPlaceholder}
+            />
           </div>
         )}
       </div>
 
       <div className="panel mb-lg">
         <div className="panel-head">
-          <span className="label">Code</span>
+          <span className="label">{strings.createTool.codeLabel}</span>
         </div>
-        <textarea value={code} onChange={(e) => setCode(e.target.value)} spellCheck={false} style={{ minHeight: 220 }} />
+        <textarea
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          spellCheck={false}
+          dir="ltr"
+          style={{ minHeight: 220 }}
+        />
       </div>
 
       <div className="row-head">
-        <h2>Aperçu en direct</h2>
+        <h2>{strings.createTool.livePreview}</h2>
       </div>
       <div className="bench mb-lg">
         <div className="panel">
           <div className="panel-head">
-            <span className="label">Entrée de test</span>
+            <span className="label">{strings.createTool.testInputLabel}</span>
           </div>
           <textarea value={testInput} onChange={(e) => setTestInput(e.target.value)} spellCheck={false} />
         </div>
@@ -173,7 +179,7 @@ export default function CreateTool() {
         </div>
         <div className="panel">
           <div className="panel-head">
-            <span className="label">Sortie</span>
+            <span className="label">{strings.createTool.outputLabel}</span>
           </div>
           <pre className={testError ? "is-error" : undefined}>{testError || testOutput}</pre>
         </div>
@@ -187,7 +193,7 @@ export default function CreateTool() {
 
       <div className="panel-tools">
         <button type="button" className="btn" onClick={handleSave}>
-          {editingTool ? "Enregistrer les modifications" : "Créer l'outil"}
+          {editingTool ? strings.createTool.saveEdit : strings.createTool.saveNew}
         </button>
       </div>
     </div>

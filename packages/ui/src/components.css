@@ -67,15 +67,15 @@
 }
 .search-trigger span {
   flex: 1;
-  text-align: left;
+  text-align: start;
   font-size: 0.85rem;
 }
 .search-trigger kbd {
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 .topbar-actions {
-  margin-left: auto;
+  margin-inline-start: auto;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -108,7 +108,7 @@
   width: 240px;
   flex: none;
   padding: 1.25rem 0.9rem;
-  border-right: 1px solid var(--border);
+  border-inline-end: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
@@ -166,11 +166,12 @@
   margin: 0.1rem 0 0.5rem;
 }
 .rail-tool-link {
-  padding: 0.32rem 0.6rem 0.32rem 1.5rem;
+  padding-block: 0.32rem;
+  padding-inline: 1.5rem 0.6rem;
   border-radius: 6px;
   font-size: 0.78rem;
   color: var(--text-tertiary);
-  text-align: left;
+  text-align: start;
   transition: background 0.15s, color 0.15s;
 }
 .rail-tool-link:hover {
@@ -198,10 +199,10 @@
   gap: 0.5rem;
   padding: 0.5rem 0.6rem;
   border-radius: 7px;
-  border-left: 2px solid transparent;
+  border-inline-start: 2px solid transparent;
   font-size: 0.87rem;
   color: var(--text-secondary);
-  text-align: left;
+  text-align: start;
   transition: background 0.15s, color 0.15s;
   width: 100%;
 }
@@ -212,7 +213,7 @@
 .rail-item.active {
   background: var(--accent-soft);
   color: var(--text);
-  border-left-color: var(--accent);
+  border-inline-start-color: var(--accent);
   font-weight: 500;
 }
 .rail-item .count {
@@ -289,7 +290,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  text-align: left;
+  text-align: start;
   transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 .strip-card:hover {
@@ -318,7 +319,7 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--surface);
-  text-align: left;
+  text-align: start;
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
@@ -532,7 +533,7 @@
   color: var(--text-secondary);
 }
 .seg button + button {
-  border-left: 1px solid var(--border);
+  border-inline-start: 1px solid var(--border);
 }
 .seg button.active {
   background: var(--accent-soft);
@@ -714,7 +715,7 @@
   width: 100%;
   padding: 0.6rem 0.7rem;
   border-radius: 8px;
-  text-align: left;
+  text-align: start;
 }
 .palette-item .pi-left {
   display: flex;

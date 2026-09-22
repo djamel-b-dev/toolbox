@@ -686,7 +686,7 @@ export const TOOLS: ToolDefinition[] = [
     description: "Discute en streaming avec l'API de chat de votre choix — URL et en-têtes configurables.",
     status: "ready",
     Component: AiChatTool,
-    statusLabel: "Envoie vos messages à l'URL configurée — seul outil réseau de Workbench",
+    statusLabel: "Envoie vos messages à l'URL configurée — seul outil réseau de Toolbox",
     statusTone: "neutral",
   },
 

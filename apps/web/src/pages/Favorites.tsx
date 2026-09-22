@@ -3,22 +3,22 @@ import { ToolCard } from "@toolbox/ui";
 import type { AppContext } from "../Layout";
 
 export default function Favorites() {
-  const { favorites, toggleFavorite, openTool, tools } = useOutletContext<AppContext>();
+  const { favorites, toggleFavorite, openTool, tools, strings, toolText, categoryLabel } = useOutletContext<AppContext>();
   const favoriteTools = tools.filter((t) => favorites.has(t.id));
 
   return (
     <>
       <div className="page-head">
-        <h1>Favoris</h1>
-        <p className="lede">Les outils que vous utilisez le plus, à portée de main.</p>
+        <h1>{strings.favorites.title}</h1>
+        <p className="lede">{strings.favorites.subtitle}</p>
       </div>
 
       {favoriteTools.length === 0 ? (
         <div className="empty-state">
-          Aucun favori pour l'instant — cliquez sur l'étoile d'un outil pour l'ajouter ici.
+          {strings.favorites.empty}
           <br />
           <Link to="/" className="back-link" style={{ marginTop: "0.75rem", justifyContent: "center" }}>
-            Parcourir tous les outils →
+            {strings.favorites.browseAll}
           </Link>
         </div>
       ) : (
@@ -27,13 +27,14 @@ export default function Favorites() {
             <ToolCard
               key={tool.id}
               id={tool.id}
-              name={tool.name}
-              category={tool.category}
-              description={tool.description}
+              name={toolText(tool).name}
+              category={categoryLabel(tool.category)}
+              description={toolText(tool).description}
               index={tools.indexOf(tool)}
               favorite
               onToggleFavorite={toggleFavorite}
               onOpen={openTool}
+              favoriteAriaLabel={strings.toolCard.favoriteAriaLabel}
             />
           ))}
         </div>

@@ -29,7 +29,7 @@ export function JsonTool() {
             { value: "minify", label: "Minifier" },
           ]}
         />
-        <button type="button" className="btn" onClick={() => setInput('{"name":"Workbench","ready":true,"tools":12}')}>
+        <button type="button" className="btn" onClick={() => setInput('{"name":"Toolbox","ready":true,"tools":12}')}>
           Utiliser un exemple
         </button>
         <button type="button" className="btn" onClick={() => setInput("")}>

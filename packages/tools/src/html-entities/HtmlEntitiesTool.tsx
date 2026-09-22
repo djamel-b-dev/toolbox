@@ -65,7 +65,7 @@ export function HtmlEntitiesTool() {
         <button
           type="button"
           className="btn"
-          onClick={() => setInput(mode === "encode" ? '<Workbench> & "outils"' : "&lt;Workbench&gt; &amp; &quot;outils&quot;")}
+          onClick={() => setInput(mode === "encode" ? '<Toolbox> & "outils"' : "&lt;Toolbox&gt; &amp; &quot;outils&quot;")}
         >
           Utiliser un exemple
         </button>

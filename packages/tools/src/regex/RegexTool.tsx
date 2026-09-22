@@ -25,7 +25,7 @@ export function RegexTool() {
   const [caseInsensitive, setCaseInsensitive] = useState(true);
   const [multiline, setMultiline] = useState(false);
   const [dotAll, setDotAll] = useState(false);
-  const [text, setText] = useState("Contact : hello@workbench.dev ou admin@example.com");
+  const [text, setText] = useState("Contact : hello@toolbox.dev ou admin@example.com");
 
   let regex: RegExp | null = null;
   let error = "";

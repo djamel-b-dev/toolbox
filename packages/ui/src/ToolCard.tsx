@@ -9,9 +9,20 @@ interface ToolCardProps {
   favorite: boolean;
   onToggleFavorite: (id: string) => void;
   onOpen: (id: string) => void;
+  favoriteAriaLabel: (name: string) => string;
 }
 
-export function ToolCard({ id, name, category, description, index, favorite, onToggleFavorite, onOpen }: ToolCardProps) {
+export function ToolCard({
+  id,
+  name,
+  category,
+  description,
+  index,
+  favorite,
+  onToggleFavorite,
+  onOpen,
+  favoriteAriaLabel,
+}: ToolCardProps) {
   const idx = String(index + 1).padStart(2, "0");
   return (
     <div
@@ -28,7 +39,7 @@ export function ToolCard({ id, name, category, description, index, favorite, onT
         <button
           type="button"
           className={"fav-btn" + (favorite ? " is-fav" : "")}
-          aria-label={`Ajouter ${name} aux favoris`}
+          aria-label={favoriteAriaLabel(name)}
           aria-pressed={favorite}
           onClick={(e) => {
             e.stopPropagation();

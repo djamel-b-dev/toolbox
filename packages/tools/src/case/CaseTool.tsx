@@ -67,7 +67,7 @@ export function CaseTool() {
           style={{ minHeight: 80 }}
         />
         <div className="panel-tools">
-          <button type="button" className="btn" onClick={() => setInput("workbench design system")}>
+          <button type="button" className="btn" onClick={() => setInput("toolbox design system")}>
             Utiliser un exemple
           </button>
           <button type="button" className="btn" onClick={() => setInput("")}>

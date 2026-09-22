@@ -17,7 +17,7 @@ function normalizeEmail(input: string): string {
 }
 
 export function EmailNormalizerTool() {
-  const [input, setInput] = useState("John.Doe+newsletter@Gmail.com\ncontact@Workbench.DEV");
+  const [input, setInput] = useState("John.Doe+newsletter@Gmail.com\ncontact@Toolbox.DEV");
 
   const lines = input.split(/\r?\n/).filter((l) => l.trim());
   const rows = lines.map((l) => [l.trim(), normalizeEmail(l)] as const);

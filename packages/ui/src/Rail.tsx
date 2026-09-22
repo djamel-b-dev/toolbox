@@ -25,6 +25,12 @@ interface RailProps {
   onCreateTool: () => void;
   favoritesActive: boolean;
   createActive: boolean;
+  favoritesLabel: string;
+  createToolLabel: string;
+  myCategoriesLabel: string;
+  categoriesLabel: string;
+  expandLabel: (label: string) => string;
+  collapseLabel: (label: string) => string;
 }
 
 export function Rail({
@@ -39,6 +45,12 @@ export function Rail({
   onCreateTool,
   favoritesActive,
   createActive,
+  favoritesLabel,
+  createToolLabel,
+  myCategoriesLabel,
+  categoriesLabel,
+  expandLabel,
+  collapseLabel,
 }: RailProps) {
   // Collapsed by default; the category holding the tool open on first load starts expanded.
   // Only one category can be open at a time — opening another closes the previous one.
@@ -73,7 +85,7 @@ export function Rail({
               type="button"
               className="rail-chevron"
               aria-expanded={isOpen}
-              aria-label={isOpen ? `Réduire ${cat.label}` : `Développer ${cat.label}`}
+              aria-label={isOpen ? collapseLabel(cat.label) : expandLabel(cat.label)}
               onClick={() => toggle(cat.id)}
             >
               <Icon name="chevron" className={isOpen ? "is-open" : undefined} />
@@ -103,7 +115,7 @@ export function Rail({
       <button type="button" className={"rail-item rail-favorites" + (favoritesActive ? " active" : "")} onClick={onSelectFavorites}>
         <span style={{ display: "flex", alignItems: "center", gap: ".5rem" }}>
           <Icon name="star" className="rail-favorites-icon" />
-          Favoris
+          {favoritesLabel}
         </span>
         <span className="count">{favoritesCount}</span>
       </button>
@@ -111,18 +123,18 @@ export function Rail({
       <button type="button" className={"rail-item rail-create" + (createActive ? " active" : "")} onClick={onCreateTool}>
         <span style={{ display: "flex", alignItems: "center", gap: ".5rem" }}>
           <Icon name="plus" />
-          Créer un outil
+          {createToolLabel}
         </span>
       </button>
 
       {customCategories.length > 0 && (
         <>
-          <div className="rail-label">Mes catégories</div>
+          <div className="rail-label">{myCategoriesLabel}</div>
           {customCategories.map(renderCategory)}
         </>
       )}
 
-      <div className="rail-label">Catégories</div>
+      <div className="rail-label">{categoriesLabel}</div>
       {categories.map(renderCategory)}
     </nav>
   );

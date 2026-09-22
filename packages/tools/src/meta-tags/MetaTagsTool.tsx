@@ -6,12 +6,12 @@ function escapeAttr(s: string): string {
 }
 
 export function MetaTagsTool() {
-  const [title, setTitle] = useState("Workbench — outils développeur");
+  const [title, setTitle] = useState("Toolbox — outils développeur");
   const [description, setDescription] = useState("Des outils pour développeurs qui tournent entièrement sur votre machine.");
-  const [url, setUrl] = useState("https://workbench.dev");
-  const [image, setImage] = useState("https://workbench.dev/og-image.png");
-  const [siteName, setSiteName] = useState("Workbench");
-  const [twitterHandle, setTwitterHandle] = useState("@workbench");
+  const [url, setUrl] = useState("https://toolbox.dev");
+  const [image, setImage] = useState("https://toolbox.dev/og-image.png");
+  const [siteName, setSiteName] = useState("Toolbox");
+  const [twitterHandle, setTwitterHandle] = useState("@toolbox");
 
   const html = [
     `<title>${escapeAttr(title)}</title>`,

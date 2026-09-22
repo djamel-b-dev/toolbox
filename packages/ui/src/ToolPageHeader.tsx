@@ -14,7 +14,7 @@ export function ToolPageHeader({ title, description, onBack, statusLabel, status
   return (
     <div className="tool-head">
       <button type="button" className="back-link" onClick={onBack}>
-        <Icon name="arrow-left" /> Workbench
+        <Icon name="arrow-left" /> Toolbox
       </button>
       <h1>{title}</h1>
       <p>{description}</p>

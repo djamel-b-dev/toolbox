@@ -32,7 +32,7 @@ export function UrlTool() {
         <button
           type="button"
           className="btn"
-          onClick={() => setInput(mode === "encode" ? "https://workbench.dev/search?q=hello world" : "https%3A%2F%2Fworkbench.dev%2Fsearch%3Fq%3Dhello%20world")}
+          onClick={() => setInput(mode === "encode" ? "https://toolbox.dev/search?q=hello world" : "https%3A%2F%2Ftoolbox.dev%2Fsearch%3Fq%3Dhello%20world")}
         >
           Utiliser un exemple
         </button>

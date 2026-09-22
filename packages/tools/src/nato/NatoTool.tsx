@@ -12,7 +12,7 @@ const NATO: Record<string, string> = {
 };
 
 export function NatoTool() {
-  const [input, setInput] = useState("Workbench 2026");
+  const [input, setInput] = useState("Toolbox 2026");
 
   const words = input
     .toUpperCase()

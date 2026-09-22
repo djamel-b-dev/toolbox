@@ -15,7 +15,7 @@ function generateKeyPairAsync(bits: number): Promise<forge.pki.rsa.KeyPair> {
 export function SelfSignedCertTool() {
   const [fields, setFields] = useState<SubjectFields>({
     cn: "localhost",
-    org: "Workbench",
+    org: "Toolbox",
     ou: "",
     locality: "",
     state: "",

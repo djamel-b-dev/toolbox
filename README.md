@@ -1,6 +1,8 @@
-# Workbench
+# Toolbox
 
 A design-first clone of IT-Tools: developer utilities that run entirely client-side.
+
+![Toolbox screenshot](docs/screenshot.png)
 
 ## Structure
 
@@ -19,6 +21,14 @@ category rail, the command palette, and routing all pick it up automatically.
 `status: "ready"` tools render their component on `/tools/:id`. `status: "planned"`
 tools still appear in the grid (to validate the UI at full scale) but open to an
 empty state instead of a component.
+
+## Languages
+
+The app shell and tool catalog ship in French, English and Arabic (with RTL
+layout), with one file per language under `packages/core/src/i18n/` — see
+`AGENTS.md` for how it's wired and how to add another language. Each
+individual tool's own internal UI is still French-only for now; that's a
+separate, incremental migration.
 
 ## Custom tools
 

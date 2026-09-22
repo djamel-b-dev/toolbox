@@ -48,7 +48,7 @@ export function HashTool() {
           style={{ minHeight: 110 }}
         />
         <div className="panel-tools">
-          <button type="button" className="btn" onClick={() => setInput("Bonjour, Workbench 👋")}>
+          <button type="button" className="btn" onClick={() => setInput("Bonjour, Toolbox 👋")}>
             Utiliser un exemple
           </button>
           <button type="button" className="btn" onClick={() => setInput("")}>

@@ -4,8 +4,8 @@ import { CopyButton, Icon, SegmentedControl } from "@toolbox/ui";
 
 type Mode = "toToml" | "toJson";
 
-const EXAMPLE_JSON = '{\n  "name": "workbench",\n  "tools": 60,\n  "owner": { "name": "Djamel" }\n}';
-const EXAMPLE_TOML = 'name = "workbench"\ntools = 60\n\n[owner]\nname = "Djamel"\n';
+const EXAMPLE_JSON = '{\n  "name": "toolbox",\n  "tools": 60,\n  "owner": { "name": "Djamel" }\n}';
+const EXAMPLE_TOML = 'name = "toolbox"\ntools = 60\n\n[owner]\nname = "Djamel"\n';
 
 export function TomlTool() {
   const [mode, setMode] = useState<Mode>("toToml");

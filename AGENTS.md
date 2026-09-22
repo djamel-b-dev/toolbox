@@ -1,6 +1,6 @@
 # AGENTS.md — working guide for this repo
 
-Workbench is a design-first clone of IT-Tools: ~70 developer utilities, 100%
+Toolbox is a design-first clone of IT-Tools: ~70 developer utilities, 100%
 client-side, no backend. This file exists so the next session (human or agent)
 doesn't have to re-derive decisions already made. Read this before adding a
 tool or a page.
@@ -105,6 +105,57 @@ tools entirely, which means favoriting/opening/searching a user-created tool
 would silently fail. `Layout.tsx`, `Home.tsx`, `Favorites.tsx`, `ToolPage.tsx`
 all follow this; keep new pages consistent.
 
+## Internationalization (i18n)
+
+The app ships in French, English and Arabic (with RTL), and is built to grow
+that list without touching component logic. Two separate translation layers:
+
+- **App chrome** (`packages/core/src/i18n/`): one file per language —
+  `fr.ts`, `en.ts`, `ar.ts` — each implementing the `Translations` interface
+  in `types.ts`. `fr.ts` is the reference; it mirrors the app's original
+  hardcoded French copy. `useLocale()` (`packages/core/src/useLocale.ts`)
+  reads/writes `localStorage["toolbox:locale"]`, falls back to
+  `navigator.language`, then to French, and keeps `<html lang>`/`[dir]` in
+  sync so RTL layout applies immediately. `Layout.tsx` is the only place that
+  calls it; the result (`locale`, `strings`, `toolText`, `categoryLabel`) rides
+  on `AppContext`, same as everything else — see "State & the AppContext"
+  above. **To add a language**: copy `en.ts`, translate every value (function
+  values like `expand: (label) => ...` too), add one entry to `LOCALES` in
+  `locales.ts`. TypeScript errors on any missing key, so a partial translation
+  can't ship silently.
+- **Tool catalog** (`packages/tools/src/i18n/catalog.ts`): `name`/
+  `description` for each tool, and category labels, keyed by tool id / French
+  category string. `registry.ts` itself stays French and untouched — a
+  locale only needs the entries it actually has; `getToolText()`/
+  `getCategoryLabel()` fall back to the French registry text for anything
+  missing, so `EN_CATALOG`/`AR_CATALOG` can be extended incrementally without
+  ever showing a blank label.
+
+**What's deliberately out of scope right now**: the *internal* UI of each of
+the ~70 individual tools (field labels, buttons, hints inside e.g. `HashTool`
+or `MarkdownTool`) is still hardcoded French. Only the app shell (topbar,
+rail, home, favorites, create-tool, command palette, tool page header/status
+pill) and each tool's name/description/category are translated. A tool's
+internals render correctly regardless — they just stay French until migrated
+one tool at a time, the same incremental pattern as the catalog.
+
+**RTL**: `useLocale()` sets `dir="rtl"` on `<html>` for Arabic. The app-shell
+CSS (`components.css`) uses logical properties (`inset-inline-start`,
+`border-inline-end`, `text-align: start`, …) for the topbar/rail/cards
+specifically so this flips automatically — no `[dir="rtl"]` override rules
+needed there. Individual tools' own CSS (hash rows, diff view, markdown
+preview, etc.) still uses physical properties and was *not* audited for RTL;
+expect rough edges there until a tool is migrated. One explicit exception:
+code/JS textareas (e.g. `CreateTool`'s code editor) are pinned `dir="ltr"`
+always — source code reads left-to-right regardless of UI language.
+
+**`packages/ui` still never imports `@toolbox/core` or `@toolbox/tools`.**
+Presentational components (`Topbar`, `Rail`, `CommandPalette`, `ToolCard`)
+take already-translated strings as props — `Layout.tsx` is what calls
+`useLocale()`/`getToolText()`/`getCategoryLabel()` and threads the results
+down. Keep new `ui` components the same way; don't reach for a translation
+hook inside `packages/ui`.
+
 ## Custom tools (the closest thing to a plugin system)
 
 Users can add their own tool from "Créer un outil" without a rebuild: a
@@ -171,8 +222,10 @@ explicit user requirement, not an accident. Don't merge the two lists.
 
 ## Conventions
 
-- UI copy is French throughout (`fr` locale). Match the existing tone:
-  direct, no filler ("Copié" not "Copié avec succès !").
+- French is the base language; a new tool's `name`/`description` in
+  `registry.ts` and its internal UI copy are written in French first (see
+  "Internationalization" above for what's already translated vs. not).
+  Match the existing tone: direct, no filler ("Copié" not "Copié avec succès !").
 - No comments unless they explain a non-obvious *why* (see examples in
   `Layout.tsx`'s favorites-redirect effect or `useCustomTools.ts`'s catch
   blocks). Don't restate what the code already says.

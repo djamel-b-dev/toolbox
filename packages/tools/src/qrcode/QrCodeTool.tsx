@@ -5,7 +5,7 @@ import { SegmentedControl } from "@toolbox/ui";
 type Level = "L" | "M" | "Q" | "H";
 
 export function QrCodeTool() {
-  const [text, setText] = useState("https://workbench.dev");
+  const [text, setText] = useState("https://toolbox.dev");
   const [level, setLevel] = useState<Level>("M");
   const [dataUrl, setDataUrl] = useState("");
   const [error, setError] = useState("");

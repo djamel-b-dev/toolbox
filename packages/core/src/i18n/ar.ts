@@ -1,0 +1,85 @@
+import type { Translations } from "./types";
+
+export const ar: Translations = {
+  common: {
+    appName: "Toolbox",
+    localOnlyStatus: "يُحسب محليًا — دون أي طلب شبكة",
+  },
+  topbar: {
+    brandAriaLabel: "Toolbox، العودة إلى الصفحة الرئيسية",
+    searchPlaceholder: "ابحث عن أداة…",
+    themeToggleAriaLabel: "تبديل المظهر",
+    languageSwitcherAriaLabel: "تغيير اللغة",
+  },
+  rail: {
+    favorites: "المفضلة",
+    createTool: "إنشاء أداة",
+    myCategories: "فئاتي",
+    categories: "الفئات",
+    allTools: "كل الأدوات",
+    expand: (label) => `توسيع ${label}`,
+    collapse: (label) => `طيّ ${label}`,
+  },
+  palette: {
+    ariaLabel: "لوحة الأوامر",
+    inputPlaceholder: "ابحث عن أداة، مثل «hash» أو «json»…",
+    noResults: "لا توجد أداة مطابقة.",
+    toolsGroup: "الأدوات",
+    previewOnlySuffix: " · معاينة فقط",
+  },
+  toolCard: {
+    favoriteAriaLabel: (name) => `إضافة ${name} إلى المفضلة`,
+  },
+  home: {
+    subtitle: "أدوات للمطورين تعمل بالكامل على جهازك. لا شيء مما تلصقه هنا يغادر علامة التبويب.",
+    viewFavorites: (count) => `عرض مفضلاتي (${count}) ←`,
+    recentlyUsed: "المستخدمة مؤخرًا",
+    allToolsHeading: "كل الأدوات",
+    allToolsHint: "جميع الأدوات تعمل بشكل كامل.",
+  },
+  favorites: {
+    title: "المفضلة",
+    subtitle: "الأدوات التي تستخدمها أكثر، في متناول يدك.",
+    empty: "لا توجد مفضلات بعد — انقر على نجمة أداة لإضافتها هنا.",
+    browseAll: "تصفّح كل الأدوات ←",
+  },
+  createTool: {
+    titleNew: "إنشاء أداة",
+    titleEdit: "تعديل الأداة",
+    intro:
+      "اكتب دالة JavaScript تحوّل مُدخلًا إلى مُخرج. يعمل هذا الكود مباشرة في متصفحك، بنفس صلاحيات الصفحة — لا تستخدم إلا كودًا كتبته بنفسك أو تثق به.",
+    nameLabel: "الاسم",
+    namePlaceholder: "محوّلي",
+    descriptionLabel: "الوصف",
+    descriptionPlaceholder: "ما تفعله الأداة، في جملة واحدة.",
+    categoryLabel: "الفئة",
+    categoryExisting: "موجودة",
+    categoryNew: "جديدة",
+    chooseLabel: "اختر",
+    newCategoryLabel: "اسم الفئة الجديدة",
+    newCategoryPlaceholder: "أدواتي",
+    codeLabel: "الكود",
+    defaultCode: `// "input" يحتوي على نص حقل الإدخال.
+// أعد السلسلة النصية المراد عرضها كمخرج.
+return input.toUpperCase();`,
+    livePreview: "معاينة مباشرة",
+    testInputLabel: "إدخال تجريبي",
+    testInputDefault: "مرحبًا، Toolbox 👋",
+    outputLabel: "المخرج",
+    saveNew: "إنشاء الأداة",
+    saveEdit: "حفظ التعديلات",
+    errorNameRequired: "الاسم مطلوب.",
+    errorCategoryRequired: "اختر فئة أو سمّها.",
+    errorCodeRequired: "لا يمكن أن يكون الكود فارغًا.",
+    errorCategoryExists: "اسم الفئة هذا موجود مسبقًا ضمن الفئات المدمجة — اختر اسمًا آخر، أو حدّد «موجودة» أعلاه.",
+    runtimeErrorFallback: "أطلق هذا الكود خطأ.",
+  },
+  toolPage: {
+    notFound: "هذه الأداة غير موجودة.",
+    notReady: "هذه الأداة ليست جزءًا من هذا النموذج الأولي بعد.",
+    loading: "جارٍ تحميل الأداة…",
+    edit: "تعديل",
+    delete: "حذف",
+    deleteConfirm: (name) => `هل تريد حذف الأداة «${name}» نهائيًا؟`,
+  },
+};

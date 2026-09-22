@@ -4,7 +4,7 @@ import { CopyButton, Icon, SegmentedControl } from "@toolbox/ui";
 type Mode = "encode" | "decode";
 
 const EXAMPLES: Record<Mode, string> = {
-  encode: "Hello, Workbench 👋",
+  encode: "Hello, Toolbox 👋",
   decode: "SGVsbG8sIFdvcmtiZW5jaCDwn5GL",
 };
 

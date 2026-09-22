@@ -4,8 +4,8 @@ import { CopyButton, Icon, SegmentedControl } from "@toolbox/ui";
 
 type Mode = "toYaml" | "toJson";
 
-const EXAMPLE_JSON = '{\n  "name": "workbench",\n  "tools": 60,\n  "categories": ["Crypto", "Web", "Text"]\n}';
-const EXAMPLE_YAML = "name: workbench\ntools: 60\ncategories:\n  - Crypto\n  - Web\n  - Text\n";
+const EXAMPLE_JSON = '{\n  "name": "toolbox",\n  "tools": 60,\n  "categories": ["Crypto", "Web", "Text"]\n}';
+const EXAMPLE_YAML = "name: toolbox\ntools: 60\ncategories:\n  - Crypto\n  - Web\n  - Text\n";
 
 export function YamlTool() {
   const [mode, setMode] = useState<Mode>("toYaml");

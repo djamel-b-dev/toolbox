@@ -323,7 +323,7 @@ export function AiChatTool() {
       </div>
 
       <p className="row-head hint" style={{ margin: "0 0 0.85rem" }}>
-        Envoie une vraie requête réseau à l'URL configurée ci-dessus à chaque message — le seul outil de Workbench à le
+        Envoie une vraie requête réseau à l'URL configurée ci-dessus à chaque message — le seul outil de Toolbox à le
         faire. Si l'API ne renvoie pas d'en-têtes CORS pour cette origine, le navigateur bloquera la réponse ; c'est une
         protection du navigateur, pas un bug de l'outil.
         {config.format === "anthropic" && (

@@ -11,8 +11,8 @@ function normalize(input: string): { text: string; error: string } {
 }
 
 export function JsonDiffTool() {
-  const [before, setBefore] = useState('{\n  "name": "workbench",\n  "version": "1.0.0",\n  "tools": 27\n}');
-  const [after, setAfter] = useState('{\n  "name": "workbench",\n  "version": "1.1.0",\n  "tools": 43,\n  "private": true\n}');
+  const [before, setBefore] = useState('{\n  "name": "toolbox",\n  "version": "1.0.0",\n  "tools": 27\n}');
+  const [after, setAfter] = useState('{\n  "name": "toolbox",\n  "version": "1.1.0",\n  "tools": 43,\n  "private": true\n}');
 
   const a = normalize(before);
   const b = normalize(after);

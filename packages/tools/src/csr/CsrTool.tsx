@@ -15,7 +15,7 @@ function generateKeyPairAsync(bits: number): Promise<forge.pki.rsa.KeyPair> {
 export function CsrTool() {
   const [fields, setFields] = useState<SubjectFields>({
     cn: "example.com",
-    org: "Workbench",
+    org: "Toolbox",
     ou: "",
     locality: "",
     state: "",
