@@ -159,6 +159,9 @@ export function AiChatTool() {
     try {
       const headers: Record<string, string> = {};
       for (const h of config.headers) if (h.enabled && h.key.trim()) headers[h.key.trim()] = h.value;
+      if (config.format === "anthropic" && !Object.keys(headers).some((k) => k.toLowerCase() === "anthropic-dangerous-direct-browser-access")) {
+        headers["anthropic-dangerous-direct-browser-access"] = "true";
+      }
 
       let extra: Record<string, unknown> = {};
       if (config.extraFields.trim()) {
@@ -323,6 +326,14 @@ export function AiChatTool() {
         Envoie une vraie requête réseau à l'URL configurée ci-dessus à chaque message — le seul outil de Workbench à le
         faire. Si l'API ne renvoie pas d'en-têtes CORS pour cette origine, le navigateur bloquera la réponse ; c'est une
         protection du navigateur, pas un bug de l'outil.
+        {config.format === "anthropic" && (
+          <>
+            {" "}En format Anthropic, l'en-tête <code>anthropic-dangerous-direct-browser-access: true</code> est ajouté
+            automatiquement pour autoriser l'appel direct depuis le navigateur (comportement officiel de l'API Anthropic) ;
+            pensez aussi à ajouter vous-même l'en-tête <code>anthropic-version</code> (ex. <code>2023-06-01</code>), requis
+            par l'API.
+          </>
+        )}
       </p>
 
       <div className="panel">
