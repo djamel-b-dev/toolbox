@@ -1,303 +1,238 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties } from "react";
-import { CopyButton, Icon } from "@toolbox/ui";
-import { useMarkdownDocs } from "@toolbox/core";
+import { useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type MouseEvent } from "react";
+import type { EditorView } from "@codemirror/view";
+import { EditorSelection } from "@codemirror/state";
+import { redo, undo } from "@codemirror/commands";
+import { openSearchPanel } from "@codemirror/search";
+import { SegmentedControl } from "@toolbox/ui";
+import { useMarkdownDocs, type MarkdownDoc } from "@toolbox/core";
+import { Editor, type CursorInfo, type EditorSettings } from "./Editor";
+import { countWords, renderMarkdown, renderMermaid } from "./render";
+import { buildStandaloneHtml, downloadFile, printHtml, safeFilename } from "./export";
+import { MdIcon, Popover, TablePicker, type MdIconName } from "./ui";
+import {
+  INLINE_MATH_TEMPLATE,
+  MATH_BLOCK_TEMPLATE,
+  MERMAID_TEMPLATE,
+  headingLevelAt,
+  insertAlert,
+  insertBlock,
+  insertCodeBlock,
+  insertFootnote,
+  insertImage,
+  insertInline,
+  insertLink,
+  insertTable,
+  setHeading,
+  toggleLinePrefix,
+  toggleTaskAt,
+  toggleWrap,
+  type EditorCommand,
+} from "./commands";
 
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+type ViewMode = "edit" | "split" | "preview";
+
+interface Settings extends EditorSettings {
+  viewMode: ViewMode;
+  syncScroll: boolean;
 }
 
-function sanitizeUrl(url: string): string {
-  const trimmed = url.trim();
-  if (/^(https?:|mailto:)/i.test(trimmed)) return trimmed;
-  if (!/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) return trimmed;
-  return "#";
-}
+const SETTINGS_KEY = "toolbox:markdown-settings";
+const SAVE_DELAY = 400;
 
-function inline(text: string): string {
-  let out = escapeHtml(text);
-  out = out.replace(/`([^`]+)`/g, "<code>$1</code>");
-  out = out.replace(/~~([^~]+)~~/g, "<del>$1</del>");
-  out = out.replace(/\*\*([^*]+)\*\*|__([^_]+)__/g, (_m, a, b) => `<strong>${a ?? b}</strong>`);
-  out = out.replace(/\*([^*]+)\*|_([^_]+)_/g, (_m, a, b) => `<em>${a ?? b}</em>`);
-  // Images before links — otherwise the link pattern below would match the
-  // "[alt](url)" tail of an image and drop the leading "!".
-  out = out.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt, url) => `<img src="${sanitizeUrl(url)}" alt="${alt}" />`);
-  out = out.replace(
-    /\[([^\]]+)\]\(([^)]+)\)/g,
-    (_m, label, url) => `<a href="${sanitizeUrl(url)}" target="_blank" rel="noopener noreferrer">${label}</a>`,
-  );
-  return out;
-}
+const DEFAULT_SETTINGS: Settings = { viewMode: "split", lineNumbers: true, wrap: true, syncScroll: true };
 
-const TABLE_SEPARATOR = /^\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/;
-
-function splitTableRow(line: string): string[] {
-  return line
-    .trim()
-    .replace(/^\|/, "")
-    .replace(/\|$/, "")
-    .split("|")
-    .map((c) => c.trim());
-}
-
-function renderMarkdown(md: string): string {
-  const lines = md.replace(/\r\n/g, "\n").split("\n");
-  const html: string[] = [];
-  let i = 0;
-  let listType: "ul" | "ol" | null = null;
-
-  function closeList() {
-    if (listType) {
-      html.push(`</${listType}>`);
-      listType = null;
-    }
+function readSettings(): Settings {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (raw) return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+  } catch {
+    /* unreadable settings — defaults are fine */
   }
-
-  while (i < lines.length) {
-    const line = lines[i];
-
-    if (/^```/.test(line)) {
-      closeList();
-      const codeLines: string[] = [];
-      i++;
-      while (i < lines.length && !/^```/.test(lines[i])) {
-        codeLines.push(lines[i]);
-        i++;
-      }
-      i++;
-      html.push(`<pre><code>${escapeHtml(codeLines.join("\n"))}</code></pre>`);
-      continue;
-    }
-
-    const headingMatch = line.match(/^(#{1,6})\s+(.*)$/);
-    if (headingMatch) {
-      closeList();
-      const level = headingMatch[1].length;
-      html.push(`<h${level}>${inline(headingMatch[2])}</h${level}>`);
-      i++;
-      continue;
-    }
-
-    if (/^(-{3,}|\*{3,})\s*$/.test(line)) {
-      closeList();
-      html.push("<hr />");
-      i++;
-      continue;
-    }
-
-    if (/^\|.*\|\s*$/.test(line) && i + 1 < lines.length && TABLE_SEPARATOR.test(lines[i + 1])) {
-      closeList();
-      const headerCells = splitTableRow(line);
-      i += 2; // header + separator
-      const rows: string[][] = [];
-      while (i < lines.length && /^\|.*\|\s*$/.test(lines[i])) {
-        rows.push(splitTableRow(lines[i]));
-        i++;
-      }
-      html.push("<table>");
-      html.push("<thead><tr>" + headerCells.map((c) => `<th>${inline(c)}</th>`).join("") + "</tr></thead>");
-      if (rows.length) {
-        html.push(
-          "<tbody>" + rows.map((r) => "<tr>" + r.map((c) => `<td>${inline(c)}</td>`).join("") + "</tr>").join("") + "</tbody>",
-        );
-      }
-      html.push("</table>");
-      continue;
-    }
-
-    if (/^>\s?/.test(line)) {
-      closeList();
-      const quoteLines: string[] = [];
-      while (i < lines.length && /^>\s?/.test(lines[i])) {
-        quoteLines.push(lines[i].replace(/^>\s?/, ""));
-        i++;
-      }
-      html.push(`<blockquote>${inline(quoteLines.join(" "))}</blockquote>`);
-      continue;
-    }
-
-    const ulMatch = line.match(/^[-*]\s+(.*)$/);
-    if (ulMatch) {
-      if (listType !== "ul") {
-        closeList();
-        html.push("<ul>");
-        listType = "ul";
-      }
-      const taskMatch = ulMatch[1].match(/^\[([ xX])\]\s+(.*)$/);
-      if (taskMatch) {
-        const checked = taskMatch[1].toLowerCase() === "x";
-        html.push(`<li class="md-task"><input type="checkbox" disabled ${checked ? "checked" : ""} /> ${inline(taskMatch[2])}</li>`);
-      } else {
-        html.push(`<li>${inline(ulMatch[1])}</li>`);
-      }
-      i++;
-      continue;
-    }
-
-    const olMatch = line.match(/^\d+\.\s+(.*)$/);
-    if (olMatch) {
-      if (listType !== "ol") {
-        closeList();
-        html.push("<ol>");
-        listType = "ol";
-      }
-      html.push(`<li>${inline(olMatch[1])}</li>`);
-      i++;
-      continue;
-    }
-
-    if (line.trim() === "") {
-      closeList();
-      i++;
-      continue;
-    }
-
-    closeList();
-    const paraLines: string[] = [];
-    while (
-      i < lines.length &&
-      lines[i].trim() !== "" &&
-      !/^(#{1,6})\s+/.test(lines[i]) &&
-      !/^```/.test(lines[i]) &&
-      !/^[-*]\s+/.test(lines[i]) &&
-      !/^\d+\.\s+/.test(lines[i]) &&
-      !/^>\s?/.test(lines[i]) &&
-      !/^(-{3,}|\*{3,})\s*$/.test(lines[i]) &&
-      !(/^\|.*\|\s*$/.test(lines[i]) && i + 1 < lines.length && TABLE_SEPARATOR.test(lines[i + 1]))
-    ) {
-      paraLines.push(lines[i]);
-      i++;
-    }
-    html.push(`<p>${inline(paraLines.join(" "))}</p>`);
-  }
-
-  closeList();
-  return html.join("\n");
+  return DEFAULT_SETTINGS;
 }
 
-const EXAMPLE = `# Bonjour
+const CODE_LANGUAGES = [
+  ["", "Texte brut"],
+  ["js", "JavaScript"],
+  ["ts", "TypeScript"],
+  ["jsx", "JSX"],
+  ["tsx", "TSX"],
+  ["json", "JSON"],
+  ["html", "HTML"],
+  ["css", "CSS"],
+  ["scss", "SCSS"],
+  ["bash", "Bash"],
+  ["python", "Python"],
+  ["java", "Java"],
+  ["kotlin", "Kotlin"],
+  ["swift", "Swift"],
+  ["go", "Go"],
+  ["rust", "Rust"],
+  ["c", "C"],
+  ["cpp", "C++"],
+  ["csharp", "C#"],
+  ["php", "PHP"],
+  ["ruby", "Ruby"],
+  ["sql", "SQL"],
+  ["yaml", "YAML"],
+  ["xml", "XML"],
+  ["diff", "Diff"],
+  ["markdown", "Markdown"],
+] as const;
 
-Ceci est un **aperçu** de _Markdown_, en local.
+const ALERTS = [
+  ["note", "Remarque"],
+  ["tip", "Astuce"],
+  ["important", "Important"],
+  ["warning", "Attention"],
+  ["caution", "Danger"],
+] as const;
 
-- Rapide
-- Sûr
-- Sans dépendance
+const IS_MAC = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
+const MOD = IS_MAC ? "⌘" : "Ctrl";
+const ALT = IS_MAC ? "⌥" : "Alt";
 
-> Rien ne quitte l'onglet.
+const SHORTCUTS: [string, string][] = [
+  [`${MOD} B`, "Gras"],
+  [`${MOD} I`, "Italique"],
+  [`${MOD} ⇧ X`, "Barré"],
+  [`${MOD} E`, "Code en ligne"],
+  [`${MOD} K`, "Lien"],
+  [`${MOD} ⇧ M`, "Formule en ligne"],
+  [`${MOD} ${ALT} 1…6`, "Titre 1 à 6"],
+  [`${MOD} ${ALT} 0`, "Paragraphe"],
+  [`${MOD} ⇧ 7 / 8 / 9`, "Liste numérotée / à puces / de tâches"],
+  [`${MOD} ⇧ .`, "Citation"],
+  [`${MOD} F`, "Rechercher / remplacer"],
+  [`${MOD} Z / ${MOD} ⇧ Z`, "Annuler / rétablir"],
+  [`${MOD} D`, "Sélectionner l'occurrence suivante"],
+  [`${ALT} ↑ / ↓`, "Déplacer la ligne"],
+  [`${ALT} clic`, "Curseurs multiples"],
+  ["Tab / ⇧ Tab", "Indenter / désindenter"],
+  [`${MOD} S`, "Enregistrer"],
+];
 
+const EXAMPLE = `# Bienvenue dans l'éditeur Markdown
+
+Tout est **enregistré automatiquement** dans votre navigateur. Rien ne quitte l'onglet.
+
+## Mise en forme
+
+Du texte en **gras**, en _italique_, ~~barré~~, du \`code en ligne\` et un [lien](https://commonmark.org).
+
+> Une citation, qui peut contenir **de la mise en forme**.
+
+> [!TIP]
+> Les alertes façon GitHub : \`NOTE\`, \`TIP\`, \`IMPORTANT\`, \`WARNING\`, \`CAUTION\`.
+
+## Listes
+
+1. Listes numérotées
+2. Avec des sous-listes
+   - imbriquées
+   - sur plusieurs niveaux
+
+- [x] Cases à cocher, cliquables dans l'aperçu
+- [ ] Essayez de cocher celle-ci
+
+## Code
+
+\`\`\`ts
+function greet(name: string): string {
+  return \`Bonjour, \${name} !\`;
+}
 \`\`\`
-const ok = true;
+
+## Tableaux
+
+| Fonction | Raccourci | Statut |
+| :--- | :---: | ---: |
+| Gras | ${MOD} B | ✅ |
+| Lien | ${MOD} K | ✅ |
+| Recherche | ${MOD} F | ✅ |
+
+## Maths
+
+La célèbre formule $E = mc^2$, et en bloc :
+
+$$
+\\int_0^\\infty e^{-x^2}\\,dx = \\frac{\\sqrt{\\pi}}{2}
+$$
+
+## Diagrammes
+
+\`\`\`mermaid
+flowchart LR
+  A[Écrire] --> B{Relire}
+  B -->|OK| C[Exporter]
+  B -->|À revoir| A
 \`\`\`
+
+## Notes de bas de page
+
+Une affirmation qui mérite une source[^1].
+
+[^1]: La note apparaît en bas du document.
 `;
 
-interface ToolbarAction {
+function relativeTime(ts: number): string {
+  const diff = Date.now() - ts;
+  const min = Math.round(diff / 60000);
+  if (min < 1) return "à l'instant";
+  if (min < 60) return `il y a ${min} min`;
+  const h = Math.round(min / 60);
+  if (h < 24) return `il y a ${h} h`;
+  const d = Math.round(h / 24);
+  if (d < 30) return `il y a ${d} j`;
+  return new Date(ts).toLocaleDateString("fr-FR");
+}
+
+interface ToolButtonProps {
+  icon: MdIconName;
   label: string;
-  title: string;
-  style?: CSSProperties;
-  run: (el: HTMLTextAreaElement, setValue: (v: string, selStart: number, selEnd: number) => void) => void;
+  shortcut?: string;
+  onClick: () => void;
+  active?: boolean;
+  disabled?: boolean;
 }
 
-function wrapSelection(before: string, after: string, placeholder: string): ToolbarAction["run"] {
-  return (el, setValue) => {
-    const { selectionStart, selectionEnd, value } = el;
-    const selected = value.slice(selectionStart, selectionEnd) || placeholder;
-    const newValue = value.slice(0, selectionStart) + before + selected + after + value.slice(selectionEnd);
-    const newStart = selectionStart + before.length;
-    setValue(newValue, newStart, newStart + selected.length);
-  };
+function ToolButton({ icon, label, shortcut, onClick, active, disabled }: ToolButtonProps) {
+  const title = shortcut ? `${label} (${shortcut})` : label;
+  return (
+    <button
+      type="button"
+      className={"md-tb-btn" + (active ? " active" : "")}
+      title={title}
+      aria-label={label}
+      aria-pressed={active}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      <MdIcon name={icon} />
+    </button>
+  );
 }
-
-function applyLinePrefix(prefix: (lineIndex: number) => string): ToolbarAction["run"] {
-  return (el, setValue) => {
-    const { selectionStart, selectionEnd, value } = el;
-    const lineStart = value.lastIndexOf("\n", selectionStart - 1) + 1;
-    const lineEndSearch = value.indexOf("\n", Math.max(selectionEnd - 1, 0));
-    const lineEnd = lineEndSearch === -1 ? value.length : lineEndSearch;
-    const prefixed = value
-      .slice(lineStart, lineEnd)
-      .split("\n")
-      .map((l, i) => prefix(i) + l)
-      .join("\n");
-    const newValue = value.slice(0, lineStart) + prefixed + value.slice(lineEnd);
-    setValue(newValue, lineStart, lineStart + prefixed.length);
-  };
-}
-
-function insertLabeledUrl(open: string): ToolbarAction["run"] {
-  return (el, setValue) => {
-    const { selectionStart, selectionEnd, value } = el;
-    const label = value.slice(selectionStart, selectionEnd) || (open === "!" ? "texte alternatif" : "texte du lien");
-    const url = "https://";
-    const snippet = `${open}[${label}](${url})`;
-    const newValue = value.slice(0, selectionStart) + snippet + value.slice(selectionEnd);
-    const urlStart = selectionStart + `${open}[${label}](`.length;
-    setValue(newValue, urlStart, urlStart + url.length);
-  };
-}
-
-function insertBlock(template: (selected: string) => string, placeholder = ""): ToolbarAction["run"] {
-  return (el, setValue) => {
-    const { selectionStart, selectionEnd, value } = el;
-    const selected = value.slice(selectionStart, selectionEnd) || placeholder;
-    const needsLeadingBreak = selectionStart > 0 && value[selectionStart - 1] !== "\n";
-    const block = (needsLeadingBreak ? "\n\n" : "") + template(selected);
-    const newValue = value.slice(0, selectionStart) + block + value.slice(selectionEnd);
-    const cursor = selectionStart + block.length;
-    setValue(newValue, cursor, cursor);
-  };
-}
-
-function wrapBlock(fence: string, placeholder: string): ToolbarAction["run"] {
-  return (el, setValue) => {
-    const { selectionStart, selectionEnd, value } = el;
-    const selected = value.slice(selectionStart, selectionEnd) || placeholder;
-    const needsLeadingBreak = selectionStart > 0 && value[selectionStart - 1] !== "\n";
-    const lead = needsLeadingBreak ? "\n" : "";
-    const snippet = `${lead}${fence}\n${selected}\n${fence}\n`;
-    const newValue = value.slice(0, selectionStart) + snippet + value.slice(selectionEnd);
-    const codeStart = selectionStart + lead.length + fence.length + 1;
-    setValue(newValue, codeStart, codeStart + selected.length);
-  };
-}
-
-const TOOLBAR_GROUPS: ToolbarAction[][] = [
-  [
-    { label: "H1", title: "Titre 1", run: applyLinePrefix(() => "# ") },
-    { label: "H2", title: "Titre 2", run: applyLinePrefix(() => "## ") },
-    { label: "H3", title: "Titre 3", run: applyLinePrefix(() => "### ") },
-  ],
-  [
-    { label: "B", title: "Gras", style: { fontWeight: 700 }, run: wrapSelection("**", "**", "texte en gras") },
-    { label: "I", title: "Italique", style: { fontStyle: "italic" }, run: wrapSelection("_", "_", "texte en italique") },
-    { label: "S", title: "Barré", style: { textDecoration: "line-through" }, run: wrapSelection("~~", "~~", "texte barré") },
-    { label: "</>", title: "Code en ligne", run: wrapSelection("`", "`", "code") },
-  ],
-  [
-    { label: "Lien", title: "Insérer un lien", run: insertLabeledUrl("") },
-    { label: "Image", title: "Insérer une image", run: insertLabeledUrl("!") },
-  ],
-  [
-    { label: "Liste", title: "Liste à puces", run: applyLinePrefix(() => "- ") },
-    { label: "1.", title: "Liste numérotée", run: applyLinePrefix((i) => `${i + 1}. `) },
-    { label: "☐", title: "Liste de tâches", run: applyLinePrefix(() => "- [ ] ") },
-  ],
-  [
-    { label: "Citation", title: "Citation", run: applyLinePrefix(() => "> ") },
-    { label: "Bloc", title: "Bloc de code", run: wrapBlock("```", "code") },
-    { label: "―", title: "Ligne horizontale", run: insertBlock(() => "---\n") },
-    {
-      label: "Tableau",
-      title: "Tableau",
-      run: insertBlock(() => "| Colonne 1 | Colonne 2 |\n| --- | --- |\n| Cellule | Cellule |\n"),
-    },
-  ],
-];
 
 export function MarkdownTool() {
   const { docs, createDoc, updateDoc, removeDoc } = useMarkdownDocs();
   const [activeId, setActiveId] = useState<string | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [settings, setSettings] = useState<Settings>(readSettings);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [content, setContent] = useState("");
+  const [cursor, setCursor] = useState<CursorInfo>({ line: 1, col: 1, selected: 0, selections: 1 });
+  const [headingLevel, setHeadingLevel] = useState(0);
+  const [pending, setPending] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [docQuery, setDocQuery] = useState("");
+  const [themeKey, setThemeKey] = useState(0);
+
+  const viewRef = useRef<EditorView | null>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const saveTimer = useRef<number | undefined>(undefined);
+  const pendingContent = useRef<{ id: string; content: string } | null>(null);
+  // Whichever pane the user is on drives the other one; this is also what prevents feedback loops.
+  const scrollSource = useRef<"editor" | "preview">("editor");
 
   // One-time bootstrap: create the first document (pre-filled with the example)
   // if none exist yet. Guarded by a ref, not just `docs.length === 0` — React's
@@ -307,155 +242,673 @@ export function MarkdownTool() {
   useEffect(() => {
     if (didBootstrap.current) return;
     didBootstrap.current = true;
-    if (docs.length === 0) createDoc("Sans titre", EXAMPLE);
+    if (docs.length === 0) createDoc("Guide Markdown", EXAMPLE);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Keep the selection valid — naturally idempotent, safe to re-run any number
-  // of times (falls back to the first document whenever the active one is gone).
   useEffect(() => {
     if (docs.length > 0 && (!activeId || !docs.some((d) => d.id === activeId))) {
-      setActiveId(docs[0].id);
+      setActiveId([...docs].sort((a, b) => b.updatedAt - a.updatedAt)[0].id);
     }
   }, [docs, activeId]);
 
   const activeDoc = docs.find((d) => d.id === activeId);
-  const html = useMemo(() => (activeDoc ? renderMarkdown(activeDoc.content) : ""), [activeDoc?.content]);
 
-  if (!activeDoc) return null;
+  // The editor owns the live text; the store is written on a short debounce.
+  const flushSave = useCallback(() => {
+    window.clearTimeout(saveTimer.current);
+    const p = pendingContent.current;
+    if (p) {
+      updateDoc(p.id, { content: p.content });
+      pendingContent.current = null;
+    }
+    setPending(false);
+  }, [updateDoc]);
 
-  function handleNew() {
-    setActiveId(createDoc("Sans titre", ""));
+  useEffect(() => {
+    window.addEventListener("beforeunload", flushSave);
+    return () => {
+      window.removeEventListener("beforeunload", flushSave);
+      flushSave();
+    };
+  }, [flushSave]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    } catch {
+      /* not persisted — settings still apply this session */
+    }
+  }, [settings]);
+
+  // Load the new document's text when switching (the editor itself swaps state via docId).
+  // State, not a ref: StrictMode's double render would otherwise drop the update.
+  const [loadedId, setLoadedId] = useState<string | null>(null);
+  if (activeDoc && loadedId !== activeDoc.id) {
+    setLoadedId(activeDoc.id);
+    setContent(activeDoc.content);
+  }
+  const loadedIdRef = useRef(loadedId);
+  loadedIdRef.current = loadedId;
+
+  useEffect(() => {
+    if (!notice) return;
+    const t = window.setTimeout(() => setNotice(null), 3500);
+    return () => window.clearTimeout(t);
+  }, [notice]);
+
+  // Mermaid picks its palette from the page background, so re-render the preview on theme change.
+  useEffect(() => {
+    const obs = new MutationObserver(() => setThemeKey((k) => k + 1));
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!fullscreen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape" && !document.querySelector(".md-editor .cm-search") && !document.querySelector(".md-popover")) setFullscreen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [fullscreen]);
+
+  const deferred = useDeferredValue(content);
+  const rendered = useMemo(() => renderMarkdown(deferred), [deferred]);
+  const words = useMemo(() => countWords(deferred), [deferred]);
+  const lines = useMemo(() => deferred.split("\n").length, [deferred]);
+
+  const showEditor = settings.viewMode !== "preview";
+  const showPreview = settings.viewMode !== "edit";
+
+  // After each render of the preview: tag blocks with their source line for scroll sync,
+  // make task checkboxes clickable, and draw mermaid diagrams.
+  useLayoutEffect(() => {
+    const root = previewRef.current;
+    if (!root) return;
+    const blocks = Array.from(root.children).filter((el) => !el.classList.contains("footnotes"));
+    blocks.forEach((el, i) => {
+      const line = rendered.blockLines[i];
+      if (line !== undefined) (el as HTMLElement).dataset.line = String(line);
+    });
+    root.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((box, i) => {
+      box.disabled = false;
+      box.dataset.task = String(i);
+    });
+    void renderMermaid(root);
+  }, [rendered, themeKey]);
+
+  function run(cmd: EditorCommand) {
+    const view = viewRef.current;
+    if (view) cmd(view);
+  }
+
+  const handleChange = useCallback(
+    (next: string) => {
+      setContent(next);
+      if (!loadedIdRef.current) return;
+      pendingContent.current = { id: loadedIdRef.current, content: next };
+      setPending(true);
+      window.clearTimeout(saveTimer.current);
+      saveTimer.current = window.setTimeout(flushSave, SAVE_DELAY);
+    },
+    [flushSave],
+  );
+
+  const handleCursor = useCallback((info: CursorInfo) => {
+    setCursor(info);
+    if (viewRef.current) setHeadingLevel(headingLevelAt(viewRef.current));
+  }, []);
+
+  function switchDoc(id: string) {
+    flushSave();
+    setActiveId(id);
+  }
+
+  function openFile(file: File) {
+    file.text().then((text) => {
+      flushSave();
+      const title = file.name.replace(/\.(md|markdown|txt)$/i, "") || "Sans titre";
+      setActiveId(createDoc(title, text));
+      setNotice(`« ${file.name} » importé.`);
+    });
+  }
+
+  function handleFiles(e: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    files.forEach(openFile);
+  }
+
+  function handleNew(template = "") {
+    flushSave();
+    setActiveId(createDoc(template ? "Guide Markdown" : "Sans titre", template));
+  }
+
+  function handleDuplicate() {
+    if (!activeDoc) return;
+    flushSave();
+    setActiveId(createDoc(`${activeDoc.title || "Sans titre"} (copie)`, viewRef.current?.state.doc.toString() ?? activeDoc.content));
   }
 
   function handleDelete() {
     if (!activeDoc || docs.length <= 1) return;
-    if (!window.confirm(`Supprimer « ${activeDoc.title || "Sans titre"} » ?`)) return;
+    if (!window.confirm(`Supprimer « ${activeDoc.title || "Sans titre"} » ? Cette action est définitive.`)) return;
+    pendingContent.current = null;
     removeDoc(activeDoc.id);
   }
 
-  function handleDownload() {
-    const blob = new Blob([activeDoc!.content], { type: "text/markdown;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${(activeDoc!.title || "document").trim() || "document"}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
+  function handleSave() {
+    flushSave();
+    setNotice("Enregistré dans le navigateur.");
   }
 
-  function handleFileSelected(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    e.target.value = ""; // reset so picking the same file again still fires onChange
-    if (!file) return;
-    file.text().then((content) => {
-      const title = file.name.replace(/\.(md|markdown|txt)$/i, "");
-      setActiveId(createDoc(title || "Sans titre", content));
-    });
+  function currentHtml(): string {
+    // Prefer the live preview DOM (it already has rendered diagrams); fall back to a fresh render.
+    return previewRef.current?.innerHTML ?? renderMarkdown(content).html;
   }
 
-  function runToolbarAction(action: ToolbarAction) {
-    const el = textareaRef.current;
-    if (!el || !activeDoc) return;
-    action.run(el, (newValue, selStart, selEnd) => {
-      updateDoc(activeDoc.id, { content: newValue });
-      requestAnimationFrame(() => {
-        el.focus();
-        el.setSelectionRange(selStart, selEnd);
-      });
-    });
+  async function copyText(text: string, message: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setNotice(message);
+    } catch {
+      setNotice("Le presse-papiers n'est pas accessible.");
+    }
   }
+
+  const title = activeDoc?.title || "Sans titre";
+  const exportActions: { icon: MdIconName; label: string; run: () => void }[] = [
+    { icon: "download", label: "Markdown (.md)", run: () => downloadFile(content, `${safeFilename(title)}.md`, "text/markdown;charset=utf-8") },
+    {
+      icon: "file",
+      label: "Page HTML (.html)",
+      run: () => downloadFile(buildStandaloneHtml(title, currentHtml()), `${safeFilename(title)}.html`, "text/html;charset=utf-8"),
+    },
+    { icon: "print", label: "PDF / imprimer", run: () => printHtml(buildStandaloneHtml(title, currentHtml())) },
+    { icon: "copy", label: "Copier le Markdown", run: () => void copyText(content, "Markdown copié.") },
+    { icon: "copy", label: "Copier le HTML", run: () => void copyText(currentHtml(), "HTML copié.") },
+  ];
+
+  // ---------- scroll sync ----------
+  function blockOffsets(): { line: number; top: number }[] {
+    const root = previewRef.current;
+    if (!root) return [];
+    return Array.from(root.querySelectorAll<HTMLElement>(":scope > [data-line]")).map((el) => ({ line: Number(el.dataset.line), top: el.offsetTop }));
+  }
+
+  const syncPreviewFromEditor = useCallback(() => {
+    const view = viewRef.current;
+    const preview = previewRef.current?.parentElement;
+    if (!view || !preview || !settings.syncScroll || settings.viewMode !== "split") return;
+    if (scrollSource.current === "preview") return;
+    const scroller = view.scrollDOM;
+    if (scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 4) {
+      preview.scrollTop = preview.scrollHeight;
+      return;
+    }
+    // Block heights are measured from the top of the document, below the content padding.
+    const y = scroller.scrollTop - view.documentPadding.top;
+    const block = view.lineBlockAtHeight(y);
+    const lineNo = view.state.doc.lineAt(block.from).number - 1;
+    const within = block.height ? (y - block.top) / block.height : 0;
+    const exact = lineNo + Math.max(0, Math.min(1, within));
+    const offsets = blockOffsets();
+    if (!offsets.length) return;
+    let i = offsets.findIndex((o) => o.line > exact) - 1;
+    if (i === -2) i = offsets.length - 1;
+    let target: number;
+    if (i < 0) target = (offsets[0].top * exact) / Math.max(1, offsets[0].line);
+    else {
+      const a = offsets[i];
+      const b = offsets[i + 1] ?? { line: view.state.doc.lines, top: preview.scrollHeight };
+      const frac = b.line === a.line ? 0 : (exact - a.line) / (b.line - a.line);
+      target = a.top + (b.top - a.top) * frac;
+    }
+    preview.scrollTop = target - 12;
+  }, [settings.syncScroll, settings.viewMode]);
+
+  function syncEditorFromPreview() {
+    const view = viewRef.current;
+    const preview = previewRef.current?.parentElement;
+    if (!view || !preview || !settings.syncScroll || settings.viewMode !== "split") return;
+    if (scrollSource.current !== "preview") return;
+    const scroller = view.scrollDOM;
+    if (preview.scrollTop + preview.clientHeight >= preview.scrollHeight - 4) {
+      scroller.scrollTop = scroller.scrollHeight;
+      return;
+    }
+    const offsets = blockOffsets();
+    if (!offsets.length) return;
+    const y = preview.scrollTop + 12;
+    let i = offsets.findIndex((o) => o.top > y) - 1;
+    if (i === -2) i = offsets.length - 1;
+    let line: number;
+    if (i < 0) line = 0;
+    else {
+      const a = offsets[i];
+      const b = offsets[i + 1] ?? { line: view.state.doc.lines, top: preview.scrollHeight };
+      const frac = b.top === a.top ? 0 : (y - a.top) / (b.top - a.top);
+      line = a.line + (b.line - a.line) * frac;
+    }
+    const n = Math.min(view.state.doc.lines, Math.floor(line) + 1);
+    const block = view.lineBlockAt(view.state.doc.line(n).from);
+    scroller.scrollTop = view.documentPadding.top + block.top + block.height * (line - Math.floor(line));
+  }
+
+  function goToHeading(id: string, line: number) {
+    const view = viewRef.current;
+    if (view && showEditor) {
+      const pos = view.state.doc.line(Math.min(view.state.doc.lines, line + 1)).from;
+      scrollSource.current = "editor";
+      view.dispatch({ selection: EditorSelection.cursor(pos), effects: [] });
+      view.scrollDOM.scrollTop = view.lineBlockAt(pos).top;
+      view.focus();
+    }
+    const target = previewRef.current?.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
+    const preview = previewRef.current?.parentElement;
+    if (target && preview && (!showEditor || !settings.syncScroll)) preview.scrollTop = target.offsetTop - 12;
+  }
+
+  function handlePreviewClick(e: MouseEvent<HTMLDivElement>) {
+    const el = e.target as HTMLElement;
+    if (el instanceof HTMLInputElement && el.type === "checkbox" && el.dataset.task) {
+      e.preventDefault();
+      const view = viewRef.current;
+      if (view) toggleTaskAt(view, Number(el.dataset.task));
+      return;
+    }
+    const link = el.closest("a");
+    const href = link?.getAttribute("href");
+    if (link && href?.startsWith("#")) {
+      e.preventDefault();
+      const target = previewRef.current?.querySelector<HTMLElement>(`#${CSS.escape(decodeURIComponent(href.slice(1)))}`);
+      const preview = previewRef.current?.parentElement;
+      if (target && preview) {
+        scrollSource.current = "preview";
+        preview.scrollTo({ top: target.offsetTop - 12, behavior: "smooth" });
+      }
+    }
+  }
+
+  const sortedDocs = useMemo(() => {
+    const q = docQuery.trim().toLowerCase();
+    return [...docs]
+      .filter((d) => !q || d.title.toLowerCase().includes(q) || d.content.toLowerCase().includes(q))
+      .sort((a, b) => b.updatedAt - a.updatedAt);
+  }, [docs, docQuery]);
+
+  if (!activeDoc) return null;
+
+  const readingMinutes = Math.max(1, Math.round(words / 220));
 
   return (
-    <div>
-      <div className="field-row">
-        <div className="field">
-          <span className="field-label">Document</span>
-          <select className="input" value={activeDoc.id} onChange={(e) => setActiveId(e.target.value)}>
-            {docs.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.title || "Sans titre"}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <span className="field-label">Titre</span>
-          <input
-            className="input"
-            value={activeDoc.title}
-            onChange={(e) => updateDoc(activeDoc.id, { title: e.target.value })}
-            placeholder="Sans titre"
-          />
-        </div>
-      </div>
-
-      <div className="panel-tools mb-lg">
-        <button type="button" className="btn" onClick={handleNew}>
-          Nouveau document
-        </button>
-        <button type="button" className="btn" onClick={() => fileInputRef.current?.click()}>
-          Ouvrir un fichier
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".md,.markdown,.txt,text/markdown,text/plain"
-          onChange={handleFileSelected}
-          style={{ display: "none" }}
-        />
-        <button type="button" className="btn" onClick={handleDownload}>
-          Télécharger .md
-        </button>
-        <button type="button" className="btn" onClick={handleDelete} disabled={docs.length <= 1}>
-          <Icon name="trash" />
-          Supprimer
-        </button>
-      </div>
-
-      <div className="bench bench-2">
-        <div className="panel">
-          <div className="panel-head">
-            <span className="label">Markdown</span>
-            <span className="meta">{activeDoc.content.length} car.</span>
-          </div>
-          <div className="md-toolbar">
-            {TOOLBAR_GROUPS.map((group, gi) => (
-              <div className="md-toolbar-group" key={gi}>
-                {group.map((action) => (
+    <div className={"md-editor" + (fullscreen ? " is-fullscreen" : "")}>
+      <div className="md-header">
+        <Popover
+          className="md-docs-popover"
+          trigger={({ open, toggle }) => (
+            <button type="button" className="btn md-docs-trigger" onClick={toggle} aria-expanded={open} title="Mes documents">
+              <MdIcon name="file" />
+              <span>Documents ({docs.length})</span>
+              <MdIcon name="chevron" />
+            </button>
+          )}
+        >
+          {(close) => (
+            <>
+              <input className="input mb-sm" value={docQuery} onChange={(e) => setDocQuery(e.target.value)} placeholder="Rechercher un document…" autoFocus />
+              <div className="md-doc-list">
+                {sortedDocs.map((d: MarkdownDoc) => (
                   <button
-                    key={action.label}
+                    key={d.id}
                     type="button"
-                    className="md-toolbar-btn"
-                    title={action.title}
-                    aria-label={action.title}
-                    style={action.style}
-                    onClick={() => runToolbarAction(action)}
+                    className={"md-doc-item" + (d.id === activeDoc.id ? " active" : "")}
+                    onClick={() => {
+                      switchDoc(d.id);
+                      close();
+                    }}
                   >
-                    {action.label}
+                    <span className="md-doc-title">{d.title || "Sans titre"}</span>
+                    <span className="md-doc-meta">
+                      {relativeTime(d.updatedAt)} · {countWords(d.content)} mots
+                    </span>
+                  </button>
+                ))}
+                {sortedDocs.length === 0 && <p className="md-popover-hint">Aucun document ne correspond.</p>}
+              </div>
+              <div className="md-popover-actions">
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => {
+                    handleNew();
+                    close();
+                  }}
+                >
+                  <MdIcon name="plus" /> Nouveau
+                </button>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => {
+                    handleNew(EXAMPLE);
+                    close();
+                  }}
+                >
+                  <MdIcon name="help" /> Guide d'exemple
+                </button>
+              </div>
+            </>
+          )}
+        </Popover>
+
+        <input
+          className="md-title-input"
+          value={activeDoc.title}
+          onChange={(e) => updateDoc(activeDoc.id, { title: e.target.value })}
+          placeholder="Sans titre"
+          aria-label="Titre du document"
+        />
+        <span className={"md-save-state" + (pending ? " pending" : "")} aria-live="polite">
+          {pending ? "Modification…" : `Enregistré ${relativeTime(activeDoc.updatedAt)}`}
+        </span>
+
+        <div className="md-header-actions">
+          <button type="button" className="btn" onClick={() => handleNew()} title="Nouveau document">
+            <MdIcon name="plus" /> Nouveau
+          </button>
+          <button type="button" className="btn" onClick={() => fileInputRef.current?.click()} title="Importer des fichiers .md">
+            <MdIcon name="upload" /> Importer
+          </button>
+          <input ref={fileInputRef} type="file" multiple accept=".md,.markdown,.txt,text/markdown,text/plain" onChange={handleFiles} hidden />
+          <Popover
+            align="end"
+            trigger={({ open, toggle }) => (
+              <button type="button" className="btn" onClick={toggle} aria-expanded={open}>
+                <MdIcon name="download" /> Exporter <MdIcon name="chevron" />
+              </button>
+            )}
+          >
+            {(close) => (
+              <div className="md-menu">
+                {exportActions.map((a) => (
+                  <button
+                    key={a.label}
+                    type="button"
+                    className="md-menu-item"
+                    onClick={() => {
+                      a.run();
+                      close();
+                    }}
+                  >
+                    <MdIcon name={a.icon} /> {a.label}
                   </button>
                 ))}
               </div>
-            ))}
-          </div>
-          <textarea
-            ref={textareaRef}
-            value={activeDoc.content}
-            onChange={(e) => updateDoc(activeDoc.id, { content: e.target.value })}
-            spellCheck={false}
-            style={{ minHeight: 320 }}
-          />
-          <div className="panel-tools">
-            <CopyButton getText={() => activeDoc.content} />
-          </div>
-        </div>
-        <div className="panel">
-          <div className="panel-head">
-            <span className="label">Aperçu</span>
-          </div>
-          <div className="md-preview" dangerouslySetInnerHTML={{ __html: html }} />
+            )}
+          </Popover>
+          <ToolButton icon="duplicate" label="Dupliquer le document" onClick={handleDuplicate} />
+          <ToolButton icon="trash" label="Supprimer le document" onClick={handleDelete} disabled={docs.length <= 1} />
         </div>
       </div>
+
+      <div className="md-toolbar" role="toolbar" aria-label="Mise en forme">
+        {showEditor && (
+          <>
+            <div className="md-tb-group">
+              <ToolButton icon="undo" label="Annuler" shortcut={`${MOD} Z`} onClick={() => run(undo)} />
+              <ToolButton icon="redo" label="Rétablir" shortcut={`${MOD} ⇧ Z`} onClick={() => run(redo)} />
+            </div>
+            <div className="md-tb-group">
+              <select
+                className="md-select"
+                value={headingLevel}
+                onChange={(e) => run(setHeading(Number(e.target.value)))}
+                aria-label="Style de paragraphe"
+              >
+                <option value={0}>Paragraphe</option>
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <option key={n} value={n}>
+                    Titre {n}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="md-tb-group">
+              <ToolButton icon="bold" label="Gras" shortcut={`${MOD} B`} onClick={() => run(toggleWrap("**", "texte en gras"))} />
+              <ToolButton icon="italic" label="Italique" shortcut={`${MOD} I`} onClick={() => run(toggleWrap("_", "texte en italique"))} />
+              <ToolButton icon="strike" label="Barré" shortcut={`${MOD} ⇧ X`} onClick={() => run(toggleWrap("~~", "texte barré"))} />
+              <ToolButton icon="code" label="Code en ligne" shortcut={`${MOD} E`} onClick={() => run(toggleWrap("`", "code"))} />
+            </div>
+            <div className="md-tb-group">
+              <ToolButton icon="link" label="Lien" shortcut={`${MOD} K`} onClick={() => run(insertLink)} />
+              <ToolButton icon="image" label="Image (ou collez / déposez un fichier)" onClick={() => run(insertImage)} />
+            </div>
+            <div className="md-tb-group">
+              <ToolButton icon="ul" label="Liste à puces" shortcut={`${MOD} ⇧ 8`} onClick={() => run(toggleLinePrefix(() => "- ", /^\s*[-*+]\s(?!\[)/))} />
+              <ToolButton icon="ol" label="Liste numérotée" shortcut={`${MOD} ⇧ 7`} onClick={() => run(toggleLinePrefix((i) => `${i + 1}. `, /^\s*\d+[.)]\s/))} />
+              <ToolButton icon="task" label="Liste de tâches" shortcut={`${MOD} ⇧ 9`} onClick={() => run(toggleLinePrefix(() => "- [ ] ", /^\s*[-*+]\s\[[ xX]\]\s/))} />
+            </div>
+            <div className="md-tb-group">
+              <ToolButton icon="quote" label="Citation" shortcut={`${MOD} ⇧ .`} onClick={() => run(toggleLinePrefix(() => "> ", /^\s*>/))} />
+              <Popover
+                trigger={({ open, toggle }) => <ToolButton icon="codeblock" label="Bloc de code" onClick={toggle} active={open} />}
+                className="md-lang-popover"
+              >
+                {(close) => (
+                  <div className="md-menu md-menu-grid">
+                    {CODE_LANGUAGES.map(([id, name]) => (
+                      <button
+                        key={id}
+                        type="button"
+                        className="md-menu-item"
+                        onClick={() => {
+                          close();
+                          run(insertCodeBlock(id));
+                        }}
+                      >
+                        {name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </Popover>
+              <Popover trigger={({ open, toggle }) => <ToolButton icon="table" label="Tableau" onClick={toggle} active={open} />}>
+                {(close) => (
+                  <TablePicker
+                    onPick={(r, c) => {
+                      close();
+                      run(insertTable(r, c));
+                    }}
+                  />
+                )}
+              </Popover>
+              <ToolButton icon="hr" label="Ligne horizontale" onClick={() => run(insertBlock("---\n"))} />
+            </div>
+            <div className="md-tb-group">
+              <ToolButton icon="footnote" label="Note de bas de page" onClick={() => run(insertFootnote)} />
+              <Popover trigger={({ open, toggle }) => <ToolButton icon="math" label="Formule mathématique (LaTeX)" onClick={toggle} active={open} />}>
+                {(close) => (
+                  <div className="md-menu">
+                    <button
+                      type="button"
+                      className="md-menu-item"
+                      onClick={() => {
+                        close();
+                        run(insertInline(INLINE_MATH_TEMPLATE, "x^2"));
+                      }}
+                    >
+                      Formule en ligne <kbd>$…$</kbd>
+                    </button>
+                    <button
+                      type="button"
+                      className="md-menu-item"
+                      onClick={() => {
+                        close();
+                        run(insertBlock(MATH_BLOCK_TEMPLATE));
+                      }}
+                    >
+                      Formule en bloc <kbd>$$…$$</kbd>
+                    </button>
+                  </div>
+                )}
+              </Popover>
+              <ToolButton icon="diagram" label="Diagramme Mermaid" onClick={() => run(insertBlock(MERMAID_TEMPLATE))} />
+              <Popover trigger={({ open, toggle }) => <ToolButton icon="alert" label="Alerte" onClick={toggle} active={open} />}>
+                {(close) => (
+                  <div className="md-menu">
+                    {ALERTS.map(([type, label]) => (
+                      <button
+                        key={type}
+                        type="button"
+                        className={`md-menu-item md-alert-item md-alert-${type}`}
+                        onClick={() => {
+                          close();
+                          run(insertAlert(type));
+                        }}
+                      >
+                        <span className="md-alert-dot" /> {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </Popover>
+            </div>
+            <div className="md-tb-group">
+              <ToolButton icon="search" label="Rechercher et remplacer" shortcut={`${MOD} F`} onClick={() => run(openSearchPanel)} />
+            </div>
+          </>
+        )}
+
+        <div className="md-tb-spacer" />
+
+        <Popover
+          align="end"
+          trigger={({ open, toggle }) => <ToolButton icon="toc" label="Plan du document" onClick={toggle} active={open} disabled={!rendered.headings.length} />}
+          className="md-toc-popover"
+        >
+          {(close) => (
+            <nav className="md-toc" aria-label="Plan du document">
+              {rendered.headings.map((h, i) => (
+                <button
+                  key={`${h.id}-${i}`}
+                  type="button"
+                  className="md-toc-item"
+                  style={{ paddingInlineStart: `${0.5 + (h.level - 1) * 0.85}rem` }}
+                  onClick={() => {
+                    close();
+                    goToHeading(h.id, h.line);
+                  }}
+                >
+                  {h.text}
+                </button>
+              ))}
+            </nav>
+          )}
+        </Popover>
+
+        <SegmentedControl<ViewMode>
+          value={settings.viewMode}
+          onChange={(viewMode) => setSettings((s) => ({ ...s, viewMode }))}
+          options={[
+            { value: "edit", label: "Éditeur" },
+            { value: "split", label: "Divisé" },
+            { value: "preview", label: "Aperçu" },
+          ]}
+        />
+
+        <Popover align="end" trigger={({ open, toggle }) => <ToolButton icon="help" label="Options et raccourcis" onClick={toggle} active={open} />} className="md-help-popover">
+          {() => (
+            <div>
+              <div className="md-options">
+                <label className="check-row">
+                  <input type="checkbox" checked={settings.lineNumbers} onChange={(e) => setSettings((s) => ({ ...s, lineNumbers: e.target.checked }))} />
+                  Numéros de ligne
+                </label>
+                <label className="check-row">
+                  <input type="checkbox" checked={settings.wrap} onChange={(e) => setSettings((s) => ({ ...s, wrap: e.target.checked }))} />
+                  Retour à la ligne automatique
+                </label>
+                <label className="check-row">
+                  <input type="checkbox" checked={settings.syncScroll} onChange={(e) => setSettings((s) => ({ ...s, syncScroll: e.target.checked }))} />
+                  Défilement synchronisé
+                </label>
+              </div>
+              <div className="md-shortcuts">
+                {SHORTCUTS.map(([keys, label]) => (
+                  <div className="md-shortcut" key={label}>
+                    <span>{label}</span>
+                    <kbd>{keys}</kbd>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </Popover>
+
+        <ToolButton icon={fullscreen ? "collapse" : "expand"} label={fullscreen ? "Quitter le mode focus (Échap)" : "Mode focus"} onClick={() => setFullscreen((f) => !f)} active={fullscreen} />
+      </div>
+
+      <div className={`md-workspace mode-${settings.viewMode}`}>
+        {/* Both panes stay mounted and are hidden with CSS, so switching modes keeps undo history, cursor and diagrams. */}
+        <div
+          className="md-pane md-pane-editor"
+          hidden={!showEditor}
+          onPointerEnter={() => (scrollSource.current = "editor")}
+          onFocus={() => (scrollSource.current = "editor")}
+          onKeyDown={() => (scrollSource.current = "editor")}
+        >
+          <Editor
+            docId={activeDoc.id}
+            initialContent={content}
+            settings={settings}
+            onReady={(v) => (viewRef.current = v)}
+            onChange={handleChange}
+            onCursor={handleCursor}
+            onScroll={syncPreviewFromEditor}
+            onSave={handleSave}
+            onOpenFile={openFile}
+            onNotice={setNotice}
+          />
+        </div>
+        <div
+          className="md-pane md-pane-preview"
+          hidden={!showPreview}
+          onPointerEnter={() => (scrollSource.current = "preview")}
+          onScroll={syncEditorFromPreview}
+        >
+          <div
+            key={themeKey}
+            ref={previewRef}
+            className="md-preview"
+            onClick={handlePreviewClick}
+            dangerouslySetInnerHTML={{ __html: rendered.html }}
+          />
+          {!content.trim() && <p className="md-preview-empty">L'aperçu apparaîtra ici.</p>}
+        </div>
+      </div>
+
+      <div className="md-statusbar">
+        {showEditor && (
+          <span>
+            Ligne {cursor.line}, col. {cursor.col}
+            {cursor.selected > 0 && ` · ${cursor.selected} sélectionné${cursor.selected > 1 ? "s" : ""}`}
+            {cursor.selections > 1 && ` · ${cursor.selections} curseurs`}
+          </span>
+        )}
+        <span>{words.toLocaleString("fr-FR")} mots</span>
+        <span>{content.length.toLocaleString("fr-FR")} caractères</span>
+        <span>{lines.toLocaleString("fr-FR")} lignes</span>
+        <span>~{readingMinutes} min de lecture</span>
+        <span className="md-statusbar-end">Markdown GFM</span>
+      </div>
+
+      {notice && (
+        <div className="md-toast" role="status">
+          {notice}
+        </div>
+      )}
     </div>
   );
 }

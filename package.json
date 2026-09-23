@@ -10,5 +10,8 @@
     "dev": "npm run dev -w apps/web",
     "build": "npm run build -w apps/web",
     "preview": "npm run preview -w apps/web"
+  },
+  "overrides": {
+    "lodash-es": "^4.18.1"
   }
 }

@@ -213,6 +213,12 @@ explicit user requirement, not an accident. Don't merge the two lists.
   `import * as x from "x"`, not `import x from "x"`. Got this wrong once
   for `node-forge`; would have been a silent runtime failure, not a
   type error, since `esModuleInterop` is off in this repo's `tsconfig`.
+- The Markdown editor (`packages/tools/src/markdown/render.ts`) needs
+  marked's tokens for scroll sync, so it unrolls `marked.parse()` by hand.
+  Never shortcut that to a bare `marked.lexer()` + `marked.parser()`:
+  the hooks and `walkTokens` steps are where `marked-alert` turns
+  blockquotes into alerts and `marked-footnote` resets its state. Skip
+  them and the *second* render of any document with a footnote throws.
 - `.gitignore` had a leftover Visual Studio/.NET NuGet rule
   (`**/[Pp]ackages/*`) that silently excluded the entire `packages/`
   workspace for most of this project's history. It's gone now — if a
