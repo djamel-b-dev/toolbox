@@ -1003,6 +1003,9 @@
   z-index: 90;
   border-radius: 0;
   border: none;
+  /* --surface is translucent in some themes (web3); layer it over the opaque --bg so nothing shows through. */
+  background-color: var(--bg);
+  background-image: linear-gradient(var(--surface), var(--surface));
 }
 .md-icon {
   width: 17px;

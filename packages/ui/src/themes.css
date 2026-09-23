@@ -306,10 +306,16 @@
 
 :root[data-theme="web3"] .topbar,
 :root[data-theme="web3"] .palette,
-:root[data-theme="web3"] .theme-menu-list {
+:root[data-theme="web3"] .theme-menu-list,
+:root[data-theme="web3"] .md-popover {
   background: rgba(12, 10, 28, 0.62);
   backdrop-filter: blur(18px) saturate(160%);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+:root[data-theme="web3"] .md-editor.is-fullscreen {
+  background-image: radial-gradient(900px 600px at 12% -10%, rgba(124, 92, 255, 0.28), transparent 60%),
+    radial-gradient(700px 500px at 95% 10%, rgba(0, 212, 255, 0.16), transparent 60%),
+    radial-gradient(800px 600px at 70% 110%, rgba(255, 78, 205, 0.16), transparent 60%);
 }
 :root[data-theme="web3"] .topbar::after {
   height: 1px;
