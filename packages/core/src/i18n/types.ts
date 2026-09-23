@@ -19,7 +19,8 @@ export interface Translations {
   topbar: {
     brandAriaLabel: string;
     searchPlaceholder: string;
-    themeToggleAriaLabel: string;
+    themeMenuAriaLabel: string;
+    themes: { light: string; dark: string; paper: string; retro: string; web3: string };
     languageSwitcherAriaLabel: string;
   };
   rail: {

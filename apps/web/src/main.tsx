@@ -5,6 +5,7 @@ import App from "./App";
 import "@toolbox/ui/tokens.css";
 import "@toolbox/ui/base.css";
 import "@toolbox/ui/components.css";
+import "@toolbox/ui/themes.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

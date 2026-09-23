@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { CommandPalette, IconSprite, Rail, Topbar } from "@toolbox/ui";
 import type { PaletteTool, RailCategory } from "@toolbox/ui";
-import { LOCALES, useCommandPalette, useFavorites, useLocale, useTheme } from "@toolbox/core";
-import type { CustomTool, CustomToolInput, Locale, Translations } from "@toolbox/core";
+import { LOCALES, THEME_IDS, useCommandPalette, useFavorites, useLocale, useTheme } from "@toolbox/core";
+import type { CustomTool, CustomToolInput, Locale, ThemeId, Translations } from "@toolbox/core";
 import { CATEGORIES, getCategoryLabel, getToolText } from "@toolbox/tools";
 import type { ToolDefinition } from "@toolbox/tools";
 import { useAllTools } from "./useAllTools";
@@ -30,7 +30,7 @@ export interface AppContext {
 export function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const { locale, setLocale, t: strings } = useLocale();
   const { open, openPalette, close } = useCommandPalette();
   const { favorites, toggleFavorite } = useFavorites();
@@ -137,10 +137,11 @@ export function Layout() {
         onOpenPalette={openPalette}
         onBrandClick={goHome}
         theme={theme}
-        onToggleTheme={toggleTheme}
+        themes={THEME_IDS.map((id) => ({ value: id, label: strings.topbar.themes[id] }))}
+        onChangeTheme={(id) => setTheme(id as ThemeId)}
         brandAriaLabel={strings.topbar.brandAriaLabel}
         searchPlaceholder={strings.topbar.searchPlaceholder}
-        themeToggleAriaLabel={strings.topbar.themeToggleAriaLabel}
+        themeMenuAriaLabel={strings.topbar.themeMenuAriaLabel}
         languageSwitcherAriaLabel={strings.topbar.languageSwitcherAriaLabel}
         locale={locale}
         locales={Object.values(LOCALES).map((l) => ({ code: l.meta.code, label: l.meta.code.toUpperCase() }))}

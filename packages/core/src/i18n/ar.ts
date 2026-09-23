@@ -8,7 +8,8 @@ export const ar: Translations = {
   topbar: {
     brandAriaLabel: "Toolbox، العودة إلى الصفحة الرئيسية",
     searchPlaceholder: "ابحث عن أداة…",
-    themeToggleAriaLabel: "تبديل المظهر",
+    themeMenuAriaLabel: "اختيار المظهر",
+    themes: { light: "فاتح", dark: "داكن", paper: "ورقي", retro: "ألعاب كلاسيكية", web3: "Web3 نيون" },
     languageSwitcherAriaLabel: "تغيير اللغة",
   },
   rail: {

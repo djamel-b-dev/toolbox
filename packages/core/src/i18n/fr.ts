@@ -8,7 +8,8 @@ export const fr: Translations = {
   topbar: {
     brandAriaLabel: "Toolbox, retour à l'accueil",
     searchPlaceholder: "Rechercher un outil…",
-    themeToggleAriaLabel: "Changer de thème",
+    themeMenuAriaLabel: "Choisir un thème",
+    themes: { light: "Clair", dark: "Sombre", paper: "Papier", retro: "Rétro arcade", web3: "Web3 néon" },
     languageSwitcherAriaLabel: "Changer de langue",
   },
   rail: {

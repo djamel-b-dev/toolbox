@@ -1,0 +1,428 @@
+/*
+ * Extra themes on top of the light/dark pair in tokens.css. Each one redefines
+ * the full token set (so it wins over the prefers-color-scheme dark block no
+ * matter the OS setting), then adds a handful of shape/texture overrides that
+ * tokens alone can't express. Loaded after components.css on purpose.
+ */
+
+:root[data-theme="light"],
+:root[data-theme="paper"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"],
+:root[data-theme="retro"],
+:root[data-theme="web3"] {
+  color-scheme: dark;
+}
+
+/* ---------- theme menu ---------- */
+.theme-menu {
+  position: relative;
+}
+.theme-menu-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline-end: 0;
+  min-width: 200px;
+  padding: 0.35rem;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  z-index: 40;
+}
+.theme-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.55rem;
+  border-radius: 7px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-align: start;
+}
+.theme-menu-item:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.theme-menu-item.active {
+  color: var(--text);
+  font-weight: 500;
+}
+.theme-menu-label {
+  flex: 1;
+}
+.theme-menu-check {
+  width: 14px;
+  height: 14px;
+  color: var(--accent);
+}
+.theme-swatch {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 6px;
+  border: 1px solid rgba(128, 128, 128, 0.35);
+}
+.theme-swatch[data-swatch="light"] {
+  background: linear-gradient(135deg, #ffffff 50%, #bd5a0c 50%);
+}
+.theme-swatch[data-swatch="dark"] {
+  background: linear-gradient(135deg, #1c1f26 50%, #ef9c45 50%);
+}
+.theme-swatch[data-swatch="paper"] {
+  background: linear-gradient(135deg, #fbf6ea 50%, #a8412a 50%);
+}
+.theme-swatch[data-swatch="retro"] {
+  border-radius: 0;
+  background: conic-gradient(#ffd23f 0 25%, #1b1640 0 50%, #ff3e8a 0 75%, #36f1cd 0);
+  image-rendering: pixelated;
+}
+.theme-swatch[data-swatch="web3"] {
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #7c5cff, #00d4ff 55%, #ff4ecd);
+}
+
+/* =====================================================================
+ * PAPER — warm, editorial light theme
+ * ===================================================================== */
+:root[data-theme="paper"] {
+  --bg: #f1e9d8;
+  --surface: #fbf6ea;
+  --surface-2: #f0e7d4;
+  --surface-3: #e6dbc4;
+  --border: #dccfb5;
+  --border-strong: #bfae8e;
+  --text: #2a231c;
+  --text-secondary: #62564a;
+  --text-tertiary: #938573;
+  --accent: #a8412a;
+  --accent-hover: #8a3220;
+  --accent-soft: rgba(168, 65, 42, 0.11);
+  --success: #3f7a3a;
+  --success-soft: rgba(63, 122, 58, 0.12);
+  --danger: #b0302a;
+  --danger-soft: rgba(176, 48, 42, 0.11);
+  --shadow-sm: 0 1px 2px rgba(60, 40, 20, 0.08);
+  --shadow-md: 0 8px 22px rgba(60, 40, 20, 0.12), 0 2px 6px rgba(60, 40, 20, 0.06);
+  --font-display: "Fraunces", Georgia, serif;
+}
+:root[data-theme="paper"] .page-head h1,
+:root[data-theme="paper"] .tool-head h1,
+:root[data-theme="paper"] .brand-name {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* =====================================================================
+ * RETRO — 8-bit arcade: pixel type, hard shadows, CRT scanlines
+ * ===================================================================== */
+:root[data-theme="retro"] {
+  --bg: #0d0b21;
+  --surface: #1b1640;
+  --surface-2: #251e56;
+  --surface-3: #30286b;
+  --border: #4a3f96;
+  --border-strong: #6c5fd0;
+  --text: #f1eeff;
+  --text-secondary: #b9b2e8;
+  --text-tertiary: #7f77b8;
+  --accent: #ffd23f;
+  --accent-hover: #ffe27a;
+  --accent-soft: rgba(255, 210, 63, 0.16);
+  --success: #36f1cd;
+  --success-soft: rgba(54, 241, 205, 0.14);
+  --danger: #ff3e8a;
+  --danger-soft: rgba(255, 62, 138, 0.16);
+  --shadow-sm: 3px 3px 0 #000;
+  --shadow-md: 6px 6px 0 #000;
+  --font-display: "Press Start 2P", "Courier New", monospace;
+  --font-body: "IBM Plex Mono", "Courier New", monospace;
+  --font-mono: "VT323", "IBM Plex Mono", monospace;
+}
+
+:root[data-theme="retro"] body {
+  background-color: var(--bg);
+  background-image: linear-gradient(rgba(108, 95, 208, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(108, 95, 208, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+/* CRT scanlines + vignette, above everything but never catching clicks */
+:root[data-theme="retro"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1000;
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.18) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.45) 100%);
+}
+
+/* Pixel art has no rounded corners. */
+:root[data-theme="retro"] *:not(.color-sv-cursor):not(.color-hue-cursor):not(.status-pill .dot) {
+  border-radius: 0 !important;
+}
+
+/* VT323 runs small; bump the mono labels so they stay readable. */
+:root[data-theme="retro"] .rail-label,
+:root[data-theme="retro"] .row-head h2,
+:root[data-theme="retro"] .panel-head .label,
+:root[data-theme="retro"] .panel-head .meta,
+:root[data-theme="retro"] .card-idx,
+:root[data-theme="retro"] .card-cat,
+:root[data-theme="retro"] .strip-card .idx,
+:root[data-theme="retro"] .rail-item .count,
+:root[data-theme="retro"] .palette-group,
+:root[data-theme="retro"] .status-pill,
+:root[data-theme="retro"] kbd {
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+}
+:root[data-theme="retro"] .panel textarea,
+:root[data-theme="retro"] .panel pre {
+  font-size: 1.2rem;
+  line-height: 1.35;
+}
+
+:root[data-theme="retro"] .brand-name {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--accent);
+  text-shadow: 2px 2px 0 #ff3e8a;
+}
+:root[data-theme="retro"] .page-head h1 {
+  font-size: 1.45rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--accent);
+  text-shadow: 3px 3px 0 #ff3e8a, 6px 6px 0 #000;
+}
+:root[data-theme="retro"] .tool-head h1 {
+  font-size: 1.1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  text-shadow: 3px 3px 0 #000;
+}
+:root[data-theme="retro"] .page-head h1::after {
+  content: "_";
+  animation: retro-blink 1s steps(1) infinite;
+}
+@keyframes retro-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+:root[data-theme="retro"] .topbar {
+  border-bottom: 3px solid var(--border-strong);
+}
+:root[data-theme="retro"] .topbar::after {
+  background: repeating-linear-gradient(90deg, #ffd23f 0 8px, #ff3e8a 8px 16px, #36f1cd 16px 24px, transparent 24px 32px);
+  opacity: 1;
+}
+
+:root[data-theme="retro"] .card,
+:root[data-theme="retro"] .strip-card,
+:root[data-theme="retro"] .panel,
+:root[data-theme="retro"] .palette,
+:root[data-theme="retro"] .theme-menu-list {
+  border-width: 2px;
+  box-shadow: var(--shadow-sm);
+}
+:root[data-theme="retro"] .card:hover,
+:root[data-theme="retro"] .strip-card:hover {
+  transform: translate(-3px, -3px);
+  border-color: var(--accent);
+  box-shadow: 6px 6px 0 #000, 6px 6px 0 2px var(--accent);
+}
+:root[data-theme="retro"] .btn,
+:root[data-theme="retro"] .seg {
+  border-width: 2px;
+  box-shadow: 2px 2px 0 #000;
+}
+:root[data-theme="retro"] .btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+:root[data-theme="retro"] .rail-item.active,
+:root[data-theme="retro"] .palette-item.active,
+:root[data-theme="retro"] .seg button.active {
+  background: var(--accent);
+  color: #0d0b21;
+}
+:root[data-theme="retro"] .rail-item.active .count,
+:root[data-theme="retro"] .palette-item.active .pi-name {
+  color: #0d0b21;
+}
+:root[data-theme="retro"] .rail-tool-link.active::before {
+  content: "► ";
+}
+:root[data-theme="retro"] ::selection {
+  background: #ff3e8a;
+  color: #fff;
+}
+:root[data-theme="retro"] :focus-visible {
+  outline: 2px dashed var(--accent);
+  outline-offset: 3px;
+}
+
+/* =====================================================================
+ * WEB3 — deep space, aurora gradients, glassmorphism
+ * ===================================================================== */
+:root[data-theme="web3"] {
+  --bg: #06050f;
+  --surface: rgba(255, 255, 255, 0.045);
+  --surface-2: rgba(255, 255, 255, 0.065);
+  --surface-3: rgba(255, 255, 255, 0.1);
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --text: #f4f3ff;
+  --text-secondary: #aeabc9;
+  --text-tertiary: #75728f;
+  --accent: #9d8bff;
+  --accent-hover: #bdb0ff;
+  --accent-soft: rgba(124, 92, 255, 0.18);
+  --success: #3ef0c0;
+  --success-soft: rgba(62, 240, 192, 0.12);
+  --danger: #ff5c93;
+  --danger-soft: rgba(255, 92, 147, 0.14);
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 18px 50px rgba(124, 92, 255, 0.22), 0 4px 14px rgba(0, 0, 0, 0.4);
+  --font-display: "Space Grotesk", "IBM Plex Sans", sans-serif;
+  --gradient: linear-gradient(120deg, #7c5cff 0%, #00d4ff 50%, #ff4ecd 100%);
+}
+
+:root[data-theme="web3"] body {
+  background-color: var(--bg);
+  background-image: radial-gradient(900px 600px at 12% -10%, rgba(124, 92, 255, 0.35), transparent 60%),
+    radial-gradient(700px 500px at 95% 10%, rgba(0, 212, 255, 0.22), transparent 60%),
+    radial-gradient(800px 600px at 70% 110%, rgba(255, 78, 205, 0.22), transparent 60%);
+  background-attachment: fixed;
+}
+
+:root[data-theme="web3"] .topbar,
+:root[data-theme="web3"] .palette,
+:root[data-theme="web3"] .theme-menu-list {
+  background: rgba(12, 10, 28, 0.62);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+:root[data-theme="web3"] .topbar::after {
+  height: 1px;
+  bottom: -1px;
+  background: var(--gradient);
+  opacity: 0.7;
+}
+:root[data-theme="web3"] .palette-overlay {
+  background: rgba(6, 5, 15, 0.55);
+  backdrop-filter: blur(6px);
+}
+
+:root[data-theme="web3"] .brand-mark {
+  color: #00d4ff;
+  filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.7));
+}
+:root[data-theme="web3"] .brand-name,
+:root[data-theme="web3"] .page-head h1,
+:root[data-theme="web3"] .tool-head h1 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+:root[data-theme="web3"] .page-head h1 {
+  font-size: 2.6rem;
+}
+
+:root[data-theme="web3"] .card,
+:root[data-theme="web3"] .strip-card,
+:root[data-theme="web3"] .panel {
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+/* Gradient hairline border that fades in on hover (masked pseudo-element). */
+:root[data-theme="web3"] .card::before,
+:root[data-theme="web3"] .strip-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--gradient);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+:root[data-theme="web3"] .strip-card {
+  position: relative;
+}
+:root[data-theme="web3"] .card:hover::before,
+:root[data-theme="web3"] .strip-card:hover::before {
+  opacity: 1;
+}
+:root[data-theme="web3"] .card:hover,
+:root[data-theme="web3"] .strip-card:hover {
+  border-color: transparent;
+  background: rgba(255, 255, 255, 0.07);
+}
+:root[data-theme="web3"] .panel textarea,
+:root[data-theme="web3"] .panel pre,
+:root[data-theme="web3"] .input {
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+:root[data-theme="web3"] .search-trigger,
+:root[data-theme="web3"] .btn,
+:root[data-theme="web3"] .seg {
+  border-radius: 99px;
+}
+:root[data-theme="web3"] .btn:hover {
+  border-color: rgba(157, 139, 255, 0.6);
+  box-shadow: 0 0 18px rgba(124, 92, 255, 0.35);
+}
+:root[data-theme="web3"] .seg button.active {
+  background: var(--gradient);
+  color: #fff;
+}
+
+:root[data-theme="web3"] .rail-item,
+:root[data-theme="web3"] .rail-tool-link,
+:root[data-theme="web3"] .palette-item {
+  border-radius: 10px;
+}
+:root[data-theme="web3"] .rail-item.active {
+  border-inline-start-color: transparent;
+  background: linear-gradient(90deg, rgba(124, 92, 255, 0.28), rgba(0, 212, 255, 0.08));
+  box-shadow: inset 2px 0 0 #00d4ff;
+}
+:root[dir="rtl"][data-theme="web3"] .rail-item.active {
+  background: linear-gradient(270deg, rgba(124, 92, 255, 0.28), rgba(0, 212, 255, 0.08));
+  box-shadow: inset -2px 0 0 #00d4ff;
+}
+:root[data-theme="web3"] .rail-item.active .count,
+:root[data-theme="web3"] .rail-tool-link.active,
+:root[data-theme="web3"] .card-idx,
+:root[data-theme="web3"] .strip-card .idx {
+  color: #6fe3ff;
+}
+:root[data-theme="web3"] .fav-btn.is-fav {
+  color: #ff4ecd;
+  filter: drop-shadow(0 0 5px rgba(255, 78, 205, 0.6));
+}
+:root[data-theme="web3"] .status-pill .dot {
+  box-shadow: 0 0 8px var(--success);
+}
+:root[data-theme="web3"] ::selection {
+  background: rgba(0, 212, 255, 0.35);
+}

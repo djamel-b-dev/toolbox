@@ -1,14 +1,16 @@
 import { Icon } from "./icons";
 import { SegmentedControl } from "./SegmentedControl";
+import { ThemeMenu } from "./ThemeMenu";
 
 interface TopbarProps {
   onOpenPalette: () => void;
   onBrandClick: () => void;
-  theme: "light" | "dark";
-  onToggleTheme: () => void;
+  theme: string;
+  themes: { value: string; label: string }[];
+  onChangeTheme: (value: string) => void;
   brandAriaLabel: string;
   searchPlaceholder: string;
-  themeToggleAriaLabel: string;
+  themeMenuAriaLabel: string;
   languageSwitcherAriaLabel: string;
   locale: string;
   locales: { code: string; label: string }[];
@@ -19,10 +21,11 @@ export function Topbar({
   onOpenPalette,
   onBrandClick,
   theme,
-  onToggleTheme,
+  themes,
+  onChangeTheme,
   brandAriaLabel,
   searchPlaceholder,
-  themeToggleAriaLabel,
+  themeMenuAriaLabel,
   languageSwitcherAriaLabel,
   locale,
   locales,
@@ -43,9 +46,7 @@ export function Topbar({
         <div role="group" aria-label={languageSwitcherAriaLabel}>
           <SegmentedControl value={locale} onChange={onChangeLocale} options={locales.map((l) => ({ value: l.code, label: l.label }))} />
         </div>
-        <button type="button" className="icon-btn" onClick={onToggleTheme} aria-label={themeToggleAriaLabel}>
-          <Icon name={theme === "dark" ? "sun" : "moon"} />
-        </button>
+        <ThemeMenu value={theme} options={themes} onChange={onChangeTheme} ariaLabel={themeMenuAriaLabel} />
       </div>
     </header>
   );

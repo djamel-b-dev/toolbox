@@ -5,6 +5,7 @@ export { StatusPill } from "./StatusPill";
 export { SegmentedControl } from "./SegmentedControl";
 export { ToolCard, RecentCard } from "./ToolCard";
 export { Topbar } from "./Topbar";
+export { ThemeMenu } from "./ThemeMenu";
 export { Rail } from "./Rail";
 export type { RailCategory, RailTool } from "./Rail";
 export { CommandPalette } from "./CommandPalette";

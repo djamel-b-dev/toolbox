@@ -10,7 +10,8 @@ export type IconName =
   | "gauge"
   | "chevron"
   | "plus"
-  | "trash";
+  | "trash"
+  | "palette";
 
 export function IconSprite() {
   return (
@@ -74,6 +75,12 @@ export function IconSprite() {
           <path d="M4 6h12" />
           <path d="M8 6V4.5A1 1 0 0 1 9 3.5h2A1 1 0 0 1 12 4.5V6" />
           <path d="M5.5 6l.6 9.5A1.5 1.5 0 0 0 7.6 17h4.8a1.5 1.5 0 0 0 1.5-1.5L14.5 6" />
+        </symbol>
+        <symbol id="i-palette" viewBox="0 0 20 20">
+          <path d="M10 2.5a7.5 7.5 0 0 0 0 15c1.1 0 1.6-.8 1.6-1.6 0-.9-.7-1.3-.7-2.1 0-.9.7-1.5 1.6-1.5h1.8a3.2 3.2 0 0 0 3.2-3.2C17.5 5.4 14.2 2.5 10 2.5Z" />
+          <circle cx="6.3" cy="9.2" r="1" fill="currentColor" stroke="none" />
+          <circle cx="8.6" cy="5.9" r="1" fill="currentColor" stroke="none" />
+          <circle cx="12.4" cy="5.9" r="1" fill="currentColor" stroke="none" />
         </symbol>
       </defs>
     </svg>
