@@ -841,6 +841,89 @@
   border: 1px solid var(--border-strong);
   flex: none;
 }
+.color-swatch-btn {
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.color-swatch-btn:hover {
+  border-color: var(--text-tertiary);
+}
+.color-swatch-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.color-swatch-btn[aria-expanded="true"] {
+  border-color: var(--accent);
+}
+.color-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  position: relative;
+}
+.color-popover {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 30;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 0.85rem;
+  box-shadow: var(--shadow-md);
+}
+.color-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 220px;
+}
+.color-sv {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background-image: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent);
+  cursor: crosshair;
+  touch-action: none;
+}
+.color-sv:focus-visible,
+.color-hue:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.color-sv-cursor {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.color-hue {
+  position: relative;
+  width: 100%;
+  height: 16px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+  cursor: pointer;
+  touch-action: none;
+}
+.color-hue-cursor {
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
 
 /* ---------- diff checker ---------- */
 .diff-pane {
