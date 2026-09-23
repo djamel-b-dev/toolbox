@@ -96,6 +96,7 @@ const GitCheatsheetTool = lazy(() =>
   import("./git-cheatsheet/GitCheatsheetTool").then((m) => ({ default: m.GitCheatsheetTool })),
 );
 const MetaTagsTool = lazy(() => import("./meta-tags/MetaTagsTool").then((m) => ({ default: m.MetaTagsTool })));
+const PixelArtTool = lazy(() => import("./pixel-art/PixelArtTool").then((m) => ({ default: m.PixelArtTool })));
 const EmojiPickerTool = lazy(() => import("./emoji-picker/EmojiPickerTool").then((m) => ({ default: m.EmojiPickerTool })));
 const CsrTool = lazy(() => import("./csr/CsrTool").then((m) => ({ default: m.CsrTool })));
 const SelfSignedCertTool = lazy(() =>
@@ -497,7 +498,7 @@ export const TOOLS: ToolDefinition[] = [
     id: "emoji-picker",
     name: "Sélecteur d'émojis",
     category: "Text",
-    description: "Recherche et copie un émoji courant.",
+    description: "Recherche et copie parmi tous les emojis Unicode et des kaomojis.",
     status: "ready",
     Component: EmojiPickerTool,
   },
@@ -634,6 +635,14 @@ export const TOOLS: ToolDefinition[] = [
     description: "Prévisualise une couleur selon différents types de daltonisme.",
     status: "ready",
     Component: ColorBlindnessTool,
+  },
+  {
+    id: "pixel-art",
+    name: "Générateur de pixel art",
+    category: "Images",
+    description: "Dessinez ou générez un sprite pixel art, exportez-le en PNG, SVG ou CSS.",
+    status: "ready",
+    Component: PixelArtTool,
   },
 
   // Certificats

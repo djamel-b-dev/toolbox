@@ -87,7 +87,7 @@ const EN_CATALOG: Record<string, CatalogEntry> = {
   obfuscator: { name: "Text Obfuscator", description: "Masks part of a sensitive string (card, email…)." },
   numeronym: { name: "Numeronym Generator", description: "Contracts long words, like i18n or a11y." },
   markdown: { name: "Markdown Editor", description: "Create, edit and preview Markdown documents, saved locally." },
-  "emoji-picker": { name: "Emoji Picker", description: "Search for and copy a common emoji." },
+  "emoji-picker": { name: "Emoji Picker", description: "Search and copy any Unicode emoji or a kaomoji." },
 
   subnet: {
     name: "Subnet Calculator",
@@ -127,6 +127,10 @@ const EN_CATALOG: Record<string, CatalogEntry> = {
   "color-blindness": {
     name: "Color Blindness Simulator",
     description: "Previews a color under different types of color blindness.",
+  },
+  "pixel-art": {
+    name: "Pixel Art Generator",
+    description: "Draw or generate a pixel art sprite, export it as PNG, SVG or CSS.",
   },
 
   csr: { name: "CSR Generator", description: "Generates a private key and a certificate signing request (PKCS#10)." },
@@ -226,7 +230,7 @@ const AR_CATALOG: Record<string, CatalogEntry> = {
   obfuscator: { name: "إخفاء النص", description: "يخفي جزءًا من سلسلة حساسة (بطاقة، بريد إلكتروني…)." },
   numeronym: { name: "مولّد Numeronym", description: "يختصر الكلمات الطويلة، مثل i18n أو a11y." },
   markdown: { name: "محرّر Markdown", description: "أنشئ وحرّر واعرض مستندات Markdown، محفوظة محليًا." },
-  "emoji-picker": { name: "منتقي الإيموجي", description: "ابحث عن إيموجي شائع وانسخه." },
+  "emoji-picker": { name: "منتقي الإيموجي", description: "ابحث عن أي إيموجي أو كاوموجي وانسخه." },
 
   subnet: {
     name: "حاسبة الشبكة الفرعية",
@@ -262,6 +266,10 @@ const AR_CATALOG: Record<string, CatalogEntry> = {
   "svg-placeholder": {
     name: "بديل SVG",
     description: "يولّد صورة بديلة بصيغة SVG بالأبعاد المطلوبة.",
+  },
+  "pixel-art": {
+    name: "مولّد فن البكسل",
+    description: "ارسم أو ولّد رسمة بكسل وصدّرها بصيغة PNG أو SVG أو CSS.",
   },
   "color-blindness": {
     name: "محاكي عمى الألوان",
