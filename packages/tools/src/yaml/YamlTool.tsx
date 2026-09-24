@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { dump, load } from "js-yaml";
 import { CopyButton, Icon, SegmentedControl } from "@toolbox/ui";
+import { JsonTree } from "../shared/JsonTree";
+import { StructuredOutput } from "../shared/CodeView";
 
 type Mode = "toYaml" | "toJson";
 
@@ -13,12 +15,15 @@ export function YamlTool() {
 
   let output = "";
   let error = "";
+  let data: unknown;
   if (input.trim()) {
     try {
       if (mode === "toYaml") {
-        output = dump(JSON.parse(input));
+        data = JSON.parse(input);
+        output = dump(data);
       } else {
-        output = JSON.stringify(load(input), null, 2);
+        data = load(input);
+        output = JSON.stringify(data, null, 2);
       }
     } catch (e) {
       error = e instanceof Error ? e.message : "Entrée invalide.";
@@ -57,7 +62,12 @@ export function YamlTool() {
             <span className="label">{mode === "toYaml" ? "YAML" : "JSON"}</span>
             <span className="meta">{output.length} car.</span>
           </div>
-          <pre className={error ? "is-error" : undefined}>{error || output}</pre>
+          <StructuredOutput
+            text={output}
+            language={mode === "toYaml" ? "yaml" : "json"}
+            error={error}
+            tree={data !== undefined && output ? <JsonTree data={data} /> : undefined}
+          />
           <div className="panel-tools">
             <CopyButton getText={() => output} />
           </div>

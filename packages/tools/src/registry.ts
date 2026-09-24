@@ -96,6 +96,40 @@ const GitCheatsheetTool = lazy(() =>
   import("./git-cheatsheet/GitCheatsheetTool").then((m) => ({ default: m.GitCheatsheetTool })),
 );
 const MetaTagsTool = lazy(() => import("./meta-tags/MetaTagsTool").then((m) => ({ default: m.MetaTagsTool })));
+const JsonCsvTool = lazy(() => import("./json-csv/JsonCsvTool").then((m) => ({ default: m.JsonCsvTool })));
+const XmlJsonTool = lazy(() => import("./xml-json/XmlJsonTool").then((m) => ({ default: m.XmlJsonTool })));
+const JsonToTsTool = lazy(() => import("./json-to-ts/JsonToTsTool").then((m) => ({ default: m.JsonToTsTool })));
+const StringEscapeTool = lazy(() => import("./string-escape/StringEscapeTool").then((m) => ({ default: m.StringEscapeTool })));
+const SemverTool = lazy(() => import("./semver/SemverTool").then((m) => ({ default: m.SemverTool })));
+const HexViewerTool = lazy(() => import("./hex-viewer/HexViewerTool").then((m) => ({ default: m.HexViewerTool })));
+const TotpTool = lazy(() => import("./totp/TotpTool").then((m) => ({ default: m.TotpTool })));
+const TimezoneTool = lazy(() => import("./timezone/TimezoneTool").then((m) => ({ default: m.TimezoneTool })));
+const DataSizeTool = lazy(() => import("./data-size/DataSizeTool").then((m) => ({ default: m.DataSizeTool })));
+const PortsTool = lazy(() => import("./ports/PortsTool").then((m) => ({ default: m.PortsTool })));
+const ImageConverterTool = lazy(() => import("./image-converter/ImageConverterTool").then((m) => ({ default: m.ImageConverterTool })));
+const KeycodeTool = lazy(() => import("./keycode/KeycodeTool").then((m) => ({ default: m.KeycodeTool })));
+const JsonPathTool = lazy(() => import("./jsonpath/JsonPathTool").then((m) => ({ default: m.JsonPathTool })));
+const GitignoreTool = lazy(() => import("./gitignore/GitignoreTool").then((m) => ({ default: m.GitignoreTool })));
+const SecurityHeadersTool = lazy(() => import("./security-headers/SecurityHeadersTool").then((m) => ({ default: m.SecurityHeadersTool })));
+const CliBuilderTool = lazy(() => import("./cli-builder/CliBuilderTool").then((m) => ({ default: m.CliBuilderTool })));
+const EnvConverterTool = lazy(() => import("./env-converter/EnvConverterTool").then((m) => ({ default: m.EnvConverterTool })));
+const CurlConverterTool = lazy(() => import("./curl-converter/CurlConverterTool").then((m) => ({ default: m.CurlConverterTool })));
+const GitDiffTool = lazy(() => import("./git-diff/GitDiffTool").then((m) => ({ default: m.GitDiffTool })));
+const BinaryDecoderTool = lazy(() => import("./binary-decoder/BinaryDecoderTool").then((m) => ({ default: m.BinaryDecoderTool })));
+const FakeDataTool = lazy(() => import("./fake-data/FakeDataTool").then((m) => ({ default: m.FakeDataTool })));
+const JsonSchemaTool = lazy(() => import("./json-schema/JsonSchemaTool").then((m) => ({ default: m.JsonSchemaTool })));
+const CronBuilderTool = lazy(() => import("./cron-builder/CronBuilderTool").then((m) => ({ default: m.CronBuilderTool })));
+const VlsmTool = lazy(() => import("./vlsm/VlsmTool").then((m) => ({ default: m.VlsmTool })));
+const CertChainTool = lazy(() => import("./cert-chain/CertChainTool").then((m) => ({ default: m.CertChainTool })));
+const SshKeygenTool = lazy(() => import("./ssh-keygen/SshKeygenTool").then((m) => ({ default: m.SshKeygenTool })));
+const EmailAuthTool = lazy(() => import("./email-auth/EmailAuthTool").then((m) => ({ default: m.EmailAuthTool })));
+const TableConverterTool = lazy(() => import("./table-converter/TableConverterTool").then((m) => ({ default: m.TableConverterTool })));
+const TextCleanerTool = lazy(() => import("./text-cleaner/TextCleanerTool").then((m) => ({ default: m.TextCleanerTool })));
+const MojibakeTool = lazy(() => import("./mojibake/MojibakeTool").then((m) => ({ default: m.MojibakeTool })));
+const FaviconTool = lazy(() => import("./favicon/FaviconTool").then((m) => ({ default: m.FaviconTool })));
+const ExifTool = lazy(() => import("./exif/ExifTool").then((m) => ({ default: m.ExifTool })));
+const CssGeneratorTool = lazy(() => import("./css-generator/CssGeneratorTool").then((m) => ({ default: m.CssGeneratorTool })));
+const DbConnectionTool = lazy(() => import("./db-connection/DbConnectionTool").then((m) => ({ default: m.DbConnectionTool })));
 const PixelArtTool = lazy(() => import("./pixel-art/PixelArtTool").then((m) => ({ default: m.PixelArtTool })));
 const EmojiPickerTool = lazy(() => import("./emoji-picker/EmojiPickerTool").then((m) => ({ default: m.EmojiPickerTool })));
 const CsrTool = lazy(() => import("./csr/CsrTool").then((m) => ({ default: m.CsrTool })));
@@ -707,6 +741,278 @@ export const TOOLS: ToolDefinition[] = [
     description: "Vérifie la clé de contrôle d'un IBAN et le formate.",
     status: "ready",
     Component: IbanTool,
+  },
+  {
+    id: "json-csv",
+    name: "Convertisseur JSON ↔ CSV",
+    category: "Data",
+    description: "Convertit un tableau JSON en CSV et inversement, avec aplatissement des objets et aperçu en tableau.",
+    status: "ready",
+    Component: JsonCsvTool,
+  },
+  {
+    id: "xml-json",
+    name: "Convertisseur XML ↔ JSON",
+    category: "Converter",
+    description: "Transforme du XML en JSON (attributs, répétitions, texte) et du JSON en XML.",
+    status: "ready",
+    Component: XmlJsonTool,
+  },
+  {
+    id: "json-to-ts",
+    name: "JSON → classes et types",
+    category: "Development",
+    description: "Génère les classes et types correspondant à un document JSON : TypeScript, C#, Python, Java, Go, Rust, Kotlin, Swift.",
+    status: "ready",
+    Component: JsonToTsTool,
+  },
+  {
+    id: "string-escape",
+    name: "Échappement de chaînes",
+    category: "Development",
+    description: "Échappe et déséchappe du texte pour JSON, JavaScript, HTML, XML, SQL, shell, regex, URL, CSV et Unicode.",
+    status: "ready",
+    Component: StringEscapeTool,
+  },
+  {
+    id: "semver",
+    name: "Comparateur SemVer",
+    category: "Development",
+    description: "Compare des versions sémantiques, teste des plages npm (^, ~, ||) et trie une liste.",
+    status: "ready",
+    Component: SemverTool,
+  },
+  {
+    id: "hex-viewer",
+    name: "Visionneuse hexadécimale",
+    category: "Development",
+    description: "Affiche le contenu d'un fichier ou d'un texte en hexadécimal et ASCII, avec détection du type et SHA-256.",
+    status: "ready",
+    Component: HexViewerTool,
+  },
+  {
+    id: "totp",
+    name: "Générateur TOTP / 2FA",
+    category: "Crypto",
+    description: "Codes à usage unique (RFC 6238) compatibles Google Authenticator, avec QR code otpauth.",
+    status: "ready",
+    Component: TotpTool,
+  },
+  {
+    id: "timezone",
+    name: "Convertisseur de fuseaux horaires",
+    category: "Converter",
+    description: "Affiche une date et une heure dans plusieurs fuseaux à la fois, heures ouvrées comprises.",
+    status: "ready",
+    Component: TimezoneTool,
+  },
+  {
+    id: "data-size",
+    name: "Tailles de données et débits",
+    category: "Converter",
+    description: "Convertit octets, Ko/Kio, Mo/Mio… et estime les temps de transfert selon le débit.",
+    status: "ready",
+    Component: DataSizeTool,
+  },
+  {
+    id: "ports",
+    name: "Ports réseau courants",
+    category: "Network",
+    description: "Référence recherchable des ports TCP/UDP : web, bases de données, VPN, Kubernetes…",
+    status: "ready",
+    Component: PortsTool,
+  },
+  {
+    id: "image-converter",
+    name: "Convertisseur d'images",
+    category: "Images",
+    description: "Redimensionne et convertit une image en PNG, JPEG ou WEBP, et l'exporte en data URI.",
+    status: "ready",
+    Component: ImageConverterTool,
+  },
+  {
+    id: "keycode",
+    name: "Infos clavier (keycode)",
+    category: "Web",
+    description: "Affiche key, code, keyCode et modificateurs de chaque touche pressée.",
+    status: "ready",
+    Component: KeycodeTool,
+  },
+  {
+    id: "jsonpath",
+    name: "Requêtes JSONPath",
+    category: "Development",
+    description: "Interroge un document JSON avec une expression JSONPath (filtres, descente récursive) et affiche le résultat en arbre.",
+    status: "ready",
+    Component: JsonPathTool,
+  },
+  {
+    id: "gitignore",
+    name: "Générateur de .gitignore",
+    category: "Development",
+    description: "Assemble un .gitignore à partir de modèles par langage, framework, outil, éditeur et système.",
+    status: "ready",
+    Component: GitignoreTool,
+  },
+  {
+    id: "security-headers",
+    name: "Analyseur d'en-têtes de sécurité HTTP",
+    category: "Web",
+    description: "Note les en-têtes d'une réponse HTTP (CSP, HSTS, cookies, CORS…) et propose les corrections.",
+    status: "ready",
+    Component: SecurityHeadersTool,
+  },
+  {
+    id: "cli-builder",
+    name: "Générateur de commandes openssl, ssh et curl",
+    category: "Development",
+    description: "Construit la bonne commande pour les tâches courantes : CSR, certificats, clés SSH, tunnels, requêtes HTTP.",
+    status: "ready",
+    Component: CliBuilderTool,
+  },
+  {
+    id: "env-converter",
+    name: "Convertisseur de variables d'environnement",
+    category: "Converter",
+    description: "Convertit .env, JSON, YAML, Kubernetes (env, ConfigMap, Secret), docker run -e, compose, bash et PowerShell.",
+    status: "ready",
+    Component: EnvConverterTool,
+  },
+  {
+    id: "curl-converter",
+    name: "curl → code",
+    category: "Development",
+    description: "Transforme une commande curl en code fetch, axios, Python requests, Go, PHP ou PowerShell.",
+    status: "ready",
+    Component: CurlConverterTool,
+  },
+  {
+    id: "git-diff",
+    name: "Visualiseur de diff Git",
+    category: "Development",
+    description: "Affiche un patch unifié (git diff) côte à côte ou en vue unifiée, fichier par fichier.",
+    status: "ready",
+    Component: GitDiffTool,
+  },
+  {
+    id: "binary-decoder",
+    name: "Décodeur Protobuf / MessagePack / CBOR",
+    category: "Converter",
+    description: "Décode des octets binaires (hex ou base64) en arbre JSON lisible, Protobuf sans schéma compris.",
+    status: "ready",
+    Component: BinaryDecoderTool,
+  },
+  {
+    id: "fake-data",
+    name: "Générateur de données factices",
+    category: "Data",
+    description: "Jeux de données de test réalistes (noms, emails, adresses, IBAN…) en JSON, CSV ou SQL INSERT.",
+    status: "ready",
+    Component: FakeDataTool,
+  },
+  {
+    id: "json-schema",
+    name: "Validateur JSON Schema",
+    category: "Development",
+    description: "Valide un document contre un schéma JSON (draft-07 à 2020-12) et génère un schéma depuis un exemple.",
+    status: "ready",
+    Component: JsonSchemaTool,
+  },
+  {
+    id: "cron-builder",
+    name: "Constructeur de crontab",
+    category: "Development",
+    description: "Construit une expression cron en cliquant et affiche les prochaines exécutions.",
+    status: "ready",
+    Component: CronBuilderTool,
+  },
+  {
+    id: "vlsm",
+    name: "Calculateur VLSM",
+    category: "Network",
+    description: "Découpe un réseau en sous-réseaux de tailles différentes selon le nombre d'hôtes nécessaires.",
+    status: "ready",
+    Component: VlsmTool,
+  },
+  {
+    id: "cert-chain",
+    name: "Vérificateur de chaîne de certificats",
+    category: "Certificats",
+    description: "Remet une chaîne de certificats dans l'ordre et vérifie signatures, dates, émetteurs et nom d'hôte.",
+    status: "ready",
+    Component: CertChainTool,
+  },
+  {
+    id: "ssh-keygen",
+    name: "Générateur de clés SSH",
+    category: "Crypto",
+    description: "Génère une paire de clés Ed25519 ou RSA au format OpenSSH, avec empreinte et randomart.",
+    status: "ready",
+    Component: SshKeygenTool,
+  },
+  {
+    id: "email-auth",
+    name: "Analyseur SPF / DMARC / DKIM",
+    category: "Network",
+    description: "Explique un enregistrement SPF, DMARC ou DKIM et signale les erreurs de configuration.",
+    status: "ready",
+    Component: EmailAuthTool,
+  },
+  {
+    id: "table-converter",
+    name: "Convertisseur de tableaux",
+    category: "Converter",
+    description: "Convertit des tableaux entre CSV, Excel, Markdown, HTML, JSON, ASCII, LaTeX et Jira.",
+    status: "ready",
+    Component: TableConverterTool,
+  },
+  {
+    id: "text-cleaner",
+    name: "Nettoyeur de texte",
+    category: "Text",
+    description: "Révèle et retire les caractères invisibles, contrôles bidi, espaces insécables et fins de ligne mélangées.",
+    status: "ready",
+    Component: TextCleanerTool,
+  },
+  {
+    id: "mojibake",
+    name: "Réparateur d'encodage (mojibake)",
+    category: "Text",
+    description: "Répare les textes mal décodés du type « Ã© » → « é » et affiche leurs octets.",
+    status: "ready",
+    Component: MojibakeTool,
+  },
+  {
+    id: "favicon",
+    name: "Générateur de favicons",
+    category: "Images",
+    description: "Crée toutes les tailles de favicon, le .ico, le manifest et le code HTML, depuis une image ou un emoji.",
+    status: "ready",
+    Component: FaviconTool,
+  },
+  {
+    id: "exif",
+    name: "Visionneuse EXIF",
+    category: "Images",
+    description: "Affiche les métadonnées d'une photo (appareil, GPS…) et les supprime avant partage.",
+    status: "ready",
+    Component: ExifTool,
+  },
+  {
+    id: "css-generator",
+    name: "Générateur CSS",
+    category: "Web",
+    description: "Dégradés, ombres portées et arrondis avec aperçu en direct et code CSS prêt à copier.",
+    status: "ready",
+    Component: CssGeneratorTool,
+  },
+  {
+    id: "db-connection",
+    name: "Chaînes de connexion aux bases de données",
+    category: "Data",
+    description: "Construit, analyse et convertit les chaînes de connexion PostgreSQL, MySQL, SQL Server, Oracle, MongoDB, Redis et SQLite.",
+    status: "ready",
+    Component: DbConnectionTool,
   },
 ];
 

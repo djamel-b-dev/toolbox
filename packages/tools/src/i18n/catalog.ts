@@ -1,7 +1,10 @@
 import type { Locale } from "@toolbox/core";
 import type { ToolDefinition } from "../types";
+import { ES_CATALOG, ES_CATEGORIES } from "./catalog-es";
+import { ZH_CATALOG, ZH_CATEGORIES } from "./catalog-zh";
+import { JA_CATALOG, JA_CATEGORIES } from "./catalog-ja";
 
-interface CatalogEntry {
+export interface CatalogEntry {
   name: string;
   description: string;
 }
@@ -154,6 +157,40 @@ const EN_CATALOG: Record<string, CatalogEntry> = {
   },
 
   iban: { name: "IBAN Validator", description: "Checks an IBAN's check digits and formats it." },
+  "json-csv": { name: "JSON ↔ CSV Converter", description: "Converts a JSON array to CSV and back, with object flattening and a table preview." },
+  "xml-json": { name: "XML ↔ JSON Converter", description: "Turns XML into JSON (attributes, repeated elements, text) and JSON into XML." },
+  "json-to-ts": { name: "JSON → Classes & Types", description: "Generates classes and types matching a JSON document: TypeScript, C#, Python, Java, Go, Rust, Kotlin, Swift." },
+  "string-escape": { name: "String Escaper", description: "Escapes and unescapes text for JSON, JavaScript, HTML, XML, SQL, shell, regex, URL, CSV and Unicode." },
+  semver: { name: "SemVer Comparator", description: "Compares semantic versions, tests npm ranges (^, ~, ||) and sorts a list." },
+  "hex-viewer": { name: "Hex Viewer", description: "Shows a file or text as hex and ASCII, with file-type detection and SHA-256." },
+  totp: { name: "TOTP / 2FA Generator", description: "One-time codes (RFC 6238) compatible with Google Authenticator, with an otpauth QR code." },
+  timezone: { name: "Time Zone Converter", description: "Shows a date and time across several time zones at once, business hours included." },
+  "data-size": { name: "Data Sizes & Transfer Rates", description: "Converts bytes, KB/KiB, MB/MiB… and estimates transfer times for a given bandwidth." },
+  ports: { name: "Common Network Ports", description: "Searchable reference of TCP/UDP ports: web, databases, VPN, Kubernetes…" },
+  "image-converter": { name: "Image Converter", description: "Resizes and converts an image to PNG, JPEG or WEBP, and exports it as a data URI." },
+  keycode: { name: "Keyboard Info (keycode)", description: "Shows key, code, keyCode and modifiers for every key you press." },
+  jsonpath: { name: "JSONPath Query", description: "Queries a JSON document with a JSONPath expression (filters, recursive descent) and shows the result as a tree." },
+  gitignore: { name: ".gitignore Generator", description: "Builds a .gitignore from templates for languages, frameworks, tools, editors and operating systems." },
+  "security-headers": { name: "HTTP Security Headers Analyzer", description: "Grades an HTTP response's headers (CSP, HSTS, cookies, CORS…) and suggests fixes." },
+  "cli-builder": { name: "openssl, ssh & curl Command Builder", description: "Builds the right command for common tasks: CSRs, certificates, SSH keys, tunnels, HTTP requests." },
+  "env-converter": { name: "Environment Variables Converter", description: "Converts .env, JSON, YAML, Kubernetes (env, ConfigMap, Secret), docker run -e, compose, bash and PowerShell." },
+  "curl-converter": { name: "curl → Code", description: "Turns a curl command into fetch, axios, Python requests, Go, PHP or PowerShell code." },
+  "git-diff": { name: "Git Diff Viewer", description: "Displays a unified patch (git diff) side by side or unified, file by file." },
+  "binary-decoder": { name: "Protobuf / MessagePack / CBOR Decoder", description: "Decodes binary bytes (hex or base64) into a readable JSON tree, including schemaless Protobuf." },
+  "fake-data": { name: "Fake Data Generator", description: "Realistic test datasets (names, emails, addresses, IBANs…) as JSON, CSV or SQL INSERT." },
+  "json-schema": { name: "JSON Schema Validator", description: "Validates a document against a JSON Schema (draft-07 to 2020-12) and generates a schema from a sample." },
+  "cron-builder": { name: "Crontab Builder", description: "Builds a cron expression by clicking and shows the next run times." },
+  vlsm: { name: "VLSM Calculator", description: "Splits a network into subnets of different sizes based on the number of hosts needed." },
+  "cert-chain": { name: "Certificate Chain Checker", description: "Reorders a certificate chain and checks signatures, dates, issuers and hostname." },
+  "ssh-keygen": { name: "SSH Key Generator", description: "Generates an Ed25519 or RSA key pair in OpenSSH format, with fingerprint and randomart." },
+  "email-auth": { name: "SPF / DMARC / DKIM Analyzer", description: "Explains an SPF, DMARC or DKIM record and flags configuration mistakes." },
+  "table-converter": { name: "Table Converter", description: "Converts tables between CSV, Excel, Markdown, HTML, JSON, ASCII, LaTeX and Jira." },
+  "text-cleaner": { name: "Text Cleaner", description: "Reveals and removes invisible characters, bidi controls, non-breaking spaces and mixed line endings." },
+  mojibake: { name: "Encoding Repair (Mojibake)", description: "Fixes badly decoded text like “Ã©” → “é” and shows its bytes." },
+  favicon: { name: "Favicon Generator", description: "Creates every favicon size, the .ico, the manifest and the HTML snippet, from an image or an emoji." },
+  exif: { name: "EXIF Viewer", description: "Shows a photo's metadata (camera, GPS…) and strips it before sharing." },
+  "css-generator": { name: "CSS Generator", description: "Gradients, box shadows and border radius with a live preview and ready-to-copy CSS." },
+  "db-connection": { name: "Database Connection Strings", description: "Builds, parses and converts PostgreSQL, MySQL, SQL Server, Oracle, MongoDB, Redis and SQLite connection strings." },
 };
 
 const AR_CATALOG: Record<string, CatalogEntry> = {
@@ -297,16 +334,56 @@ const AR_CATALOG: Record<string, CatalogEntry> = {
   },
 
   iban: { name: "التحقق من IBAN", description: "يتحقق من رقم التحقق (check digits) لـ IBAN وينسّقه." },
+  "json-csv": { name: "محوّل JSON ↔ CSV", description: "يحوّل مصفوفة JSON إلى CSV والعكس، مع تسطيح الكائنات ومعاينة جدولية." },
+  "xml-json": { name: "محوّل XML ↔ JSON", description: "يحوّل XML إلى JSON (السمات، العناصر المتكررة، النص) وJSON إلى XML." },
+  "json-to-ts": { name: "JSON ← أصناف وأنواع", description: "يولّد الأصناف والأنواع المطابقة لمستند JSON: TypeScript, C#, Python, Java, Go, Rust, Kotlin, Swift." },
+  "string-escape": { name: "تهريب السلاسل النصية", description: "يهرّب النص ويفك تهريبه لـ JSON وJavaScript وHTML وXML وSQL وShell والتعابير النمطية وURL وCSV وUnicode." },
+  semver: { name: "مقارنة SemVer", description: "يقارن الإصدارات الدلالية ويختبر نطاقات npm (^ و~ و||) ويرتّب قائمة." },
+  "hex-viewer": { name: "عارض سداسي عشري", description: "يعرض ملفًا أو نصًا بالنظام السداسي عشر وASCII، مع كشف نوع الملف وSHA-256." },
+  totp: { name: "مولّد TOTP / المصادقة الثنائية", description: "رموز لمرة واحدة (RFC 6238) متوافقة مع Google Authenticator، مع رمز QR بصيغة otpauth." },
+  timezone: { name: "محوّل المناطق الزمنية", description: "يعرض تاريخًا ووقتًا في عدة مناطق زمنية معًا، مع ساعات العمل." },
+  "data-size": { name: "أحجام البيانات وسرعات النقل", description: "يحوّل البايت وKB/KiB وMB/MiB… ويقدّر زمن النقل حسب السرعة." },
+  ports: { name: "منافذ الشبكة الشائعة", description: "مرجع قابل للبحث لمنافذ TCP/UDP: الويب، قواعد البيانات، VPN، Kubernetes…" },
+  "image-converter": { name: "محوّل الصور", description: "يغيّر حجم الصورة ويحوّلها إلى PNG أو JPEG أو WEBP ويصدّرها بصيغة data URI." },
+  keycode: { name: "معلومات لوحة المفاتيح (keycode)", description: "يعرض key وcode وkeyCode ومفاتيح التعديل لكل مفتاح تضغطه." },
+  jsonpath: { name: "استعلامات JSONPath", description: "يستعلم عن مستند JSON بتعبير JSONPath (مرشحات، بحث متداخل) ويعرض النتيجة على شكل شجرة." },
+  gitignore: { name: "مولّد ‎.gitignore", description: "يجمع ملف ‎.gitignore من قوالب حسب اللغة والإطار والأداة والمحرر ونظام التشغيل." },
+  "security-headers": { name: "محلّل ترويسات أمان HTTP", description: "يقيّم ترويسات استجابة HTTP (CSP وHSTS وملفات تعريف الارتباط وCORS…) ويقترح التصحيحات." },
+  "cli-builder": { name: "مولّد أوامر openssl وssh وcurl", description: "يبني الأمر الصحيح للمهام الشائعة: CSR، الشهادات، مفاتيح SSH، الأنفاق، طلبات HTTP." },
+  "env-converter": { name: "محوّل متغيرات البيئة", description: "يحوّل بين ‎.env وJSON وYAML وKubernetes (env وConfigMap وSecret) وdocker run -e وcompose وbash وPowerShell." },
+  "curl-converter": { name: "curl ← شيفرة", description: "يحوّل أمر curl إلى شيفرة fetch أو axios أو Python requests أو Go أو PHP أو PowerShell." },
+  "git-diff": { name: "عارض فروقات Git", description: "يعرض ملف ترقيع موحّد (git diff) جنبًا إلى جنب أو بشكل موحّد، ملفًا تلو الآخر." },
+  "binary-decoder": { name: "مفكّك Protobuf / MessagePack / CBOR", description: "يفك ترميز البايتات الثنائية (hex أو base64) إلى شجرة JSON مقروءة، بما في ذلك Protobuf دون مخطط." },
+  "fake-data": { name: "مولّد بيانات وهمية", description: "مجموعات بيانات اختبار واقعية (أسماء، بريد، عناوين، IBAN…) بصيغة JSON أو CSV أو SQL INSERT." },
+  "json-schema": { name: "مدقّق JSON Schema", description: "يتحقق من مستند وفق مخطط JSON (من draft-07 إلى 2020-12) ويولّد مخططًا من مثال." },
+  "cron-builder": { name: "منشئ Crontab", description: "يبني تعبير cron بالنقر ويعرض مواعيد التشغيل القادمة." },
+  vlsm: { name: "حاسبة VLSM", description: "يقسّم شبكة إلى شبكات فرعية بأحجام مختلفة حسب عدد الأجهزة المطلوبة." },
+  "cert-chain": { name: "مدقّق سلسلة الشهادات", description: "يعيد ترتيب سلسلة الشهادات ويتحقق من التواقيع والتواريخ والجهات المصدرة واسم المضيف." },
+  "ssh-keygen": { name: "مولّد مفاتيح SSH", description: "يولّد زوج مفاتيح Ed25519 أو RSA بصيغة OpenSSH مع البصمة وrandomart." },
+  "email-auth": { name: "محلّل SPF / DMARC / DKIM", description: "يشرح سجل SPF أو DMARC أو DKIM وينبّه إلى أخطاء الإعداد." },
+  "table-converter": { name: "محوّل الجداول", description: "يحوّل الجداول بين CSV وExcel وMarkdown وHTML وJSON وASCII وLaTeX وJira." },
+  "text-cleaner": { name: "منظّف النصوص", description: "يكشف ويزيل المحارف غير المرئية وعناصر التحكم في الاتجاه والمسافات غير القابلة للكسر ونهايات الأسطر المختلطة." },
+  mojibake: { name: "مصلح الترميز (Mojibake)", description: "يصلح النصوص المفكوكة خطأً مثل «Ã©» ← «é» ويعرض بايتاتها." },
+  favicon: { name: "مولّد الأيقونات المفضلة (Favicon)", description: "ينشئ كل أحجام الأيقونة وملف ‎.ico والـ manifest وشيفرة HTML من صورة أو إيموجي." },
+  exif: { name: "عارض EXIF", description: "يعرض البيانات الوصفية للصورة (الكاميرا، GPS…) ويحذفها قبل المشاركة." },
+  "css-generator": { name: "مولّد CSS", description: "تدرجات لونية وظلال وزوايا مستديرة مع معاينة مباشرة وشيفرة CSS جاهزة للنسخ." },
+  "db-connection": { name: "سلاسل الاتصال بقواعد البيانات", description: "ينشئ ويحلّل ويحوّل سلاسل الاتصال لـ PostgreSQL وMySQL وSQL Server وOracle وMongoDB وRedis وSQLite." },
 };
 
 const CATALOG_TRANSLATIONS: Partial<Record<Locale, Record<string, CatalogEntry>>> = {
   en: EN_CATALOG,
+  es: ES_CATALOG,
   ar: AR_CATALOG,
+  zh: ZH_CATALOG,
+  ja: JA_CATALOG,
 };
 
 /** Category ids are free-form strings in French (the app's base language); translate the label only. */
 const CATEGORY_LABELS: Partial<Record<Locale, Record<string, string>>> = {
   en: { Certificats: "Certificates", IA: "AI" },
+  es: ES_CATEGORIES,
+  zh: ZH_CATEGORIES,
+  ja: JA_CATEGORIES,
   ar: {
     Crypto: "التشفير",
     Web: "الويب",

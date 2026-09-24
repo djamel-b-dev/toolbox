@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-export const THEME_IDS = ["light", "dark", "paper", "retro", "web3"] as const;
+export const THEME_IDS = ["light", "dark", "paper", "sakura", "arctic", "terminal", "synthwave", "retro", "web3"] as const;
 export type ThemeId = (typeof THEME_IDS)[number];
 
 const STORAGE_KEY = "toolbox:theme";

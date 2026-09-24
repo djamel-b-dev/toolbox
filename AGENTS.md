@@ -1,6 +1,6 @@
 # AGENTS.md — working guide for this repo
 
-Toolbox is a design-first clone of IT-Tools: ~70 developer utilities, 100%
+Toolbox is a design-first clone of IT-Tools: 100+ developer utilities, 100%
 client-side, no backend. This file exists so the next session (human or agent)
 doesn't have to re-derive decisions already made. Read this before adding a
 tool or a page.
@@ -84,6 +84,14 @@ shape already built:
   block, used for PEM output)
 - `CopyButton`, `SegmentedControl`, `StatusPill` from `@toolbox/ui` — don't
   hand-roll copy-to-clipboard or a toggle control again
+- **Structured output** (`packages/tools/src/shared/`): any tool that outputs
+  JSON/XML/YAML/TOML/CSV/SQL/TS must not dump it into a bare `<pre>`. Use
+  `StructuredOutput` (an "Arbre"/"Texte" switch, remembered across tools) with
+  `JsonTree` (foldable, copy path/value — also for YAML/TOML once parsed) or
+  `XmlTree` (foldable, copy XPath) as the tree, or `CodeView` alone
+  (highlight.js core + a handful of registered grammars, line numbers) when
+  there's no meaningful tree. Register a new grammar in `CodeView.tsx`, don't
+  pull in `highlight.js/lib/common` for one language.
 
 If you do need new CSS, check the existing tools for a similar shape first —
 most of the ~70 tools in this repo compose the same eight or so classes.
@@ -107,11 +115,12 @@ all follow this; keep new pages consistent.
 
 ## Internationalization (i18n)
 
-The app ships in French, English and Arabic (with RTL), and is built to grow
+The app ships in French, English, Spanish, Arabic (with RTL), Simplified
+Chinese and Japanese, and is built to grow
 that list without touching component logic. Two separate translation layers:
 
 - **App chrome** (`packages/core/src/i18n/`): one file per language —
-  `fr.ts`, `en.ts`, `ar.ts` — each implementing the `Translations` interface
+  `fr.ts`, `en.ts`, `es.ts`, `ar.ts`, `zh.ts`, `ja.ts` — each implementing the `Translations` interface
   in `types.ts`. `fr.ts` is the reference; it mirrors the app's original
   hardcoded French copy. `useLocale()` (`packages/core/src/useLocale.ts`)
   reads/writes `localStorage["toolbox:locale"]`, falls back to
@@ -121,11 +130,15 @@ that list without touching component logic. Two separate translation layers:
   on `AppContext`, same as everything else — see "State & the AppContext"
   above. **To add a language**: copy `en.ts`, translate every value (function
   values like `expand: (label) => ...` too), add one entry to `LOCALES` in
-  `locales.ts`. TypeScript errors on any missing key, so a partial translation
+  `locales.ts`, with a `flag` country code that `packages/ui/src/Flag.tsx`
+  can draw (flags are inline SVG, not emoji — emoji flags render as bare
+  letters on Windows). Arabic uses the UAE flag since the language has no
+  single country; change it there if needed. TypeScript errors on any missing key, so a partial translation
   can't ship silently.
 - **Tool catalog** (`packages/tools/src/i18n/catalog.ts`): `name`/
   `description` for each tool, and category labels, keyed by tool id / French
-  category string. `registry.ts` itself stays French and untouched — a
+  category string. EN and AR live in `catalog.ts`; ES/ZH/JA each have their
+  own `catalog-<code>.ts`. **A new tool needs an entry in all five.** `registry.ts` itself stays French and untouched — a
   locale only needs the entries it actually has; `getToolText()`/
   `getCategoryLabel()` fall back to the French registry text for anything
   missing, so `EN_CATALOG`/`AR_CATALOG` can be extended incrementally without
@@ -219,6 +232,20 @@ explicit user requirement, not an accident. Don't merge the two lists.
   the hooks and `walkTokens` steps are where `marked-alert` turns
   blockquotes into alerts and `marked-footnote` resets its state. Skip
   them and the *second* render of any document with a footnote throws.
+- **Keep invisible characters escaped in source.** Tools like the text
+  cleaner, mojibake fixer and string escaper need zero-width, bidi and C1
+  characters in regexes and examples: always write them as `\u200b` escapes,
+  never as raw characters (a raw U+202E in source is literally the "Trojan
+  Source" attack those tools warn about, and editors hide it). Some file-writing
+  tools decode `\uXXXX` on the way in — after writing such a file, scan for
+  `Cf`/`Cc`/`Zs` code points and re-escape them.
+- `json-to-ts/codegen.ts` (JSON → TypeScript, C#, Python, Java, Go, Rust,
+  Kotlin, Swift) has no framework dependency, so it runs directly under
+  `node file.mts` (Node strips the types). Its outputs were compile-checked
+  with real toolchains (tsc, python, javac, swiftc, dotnet) against a sample
+  with a reserved-word key (`class`) and a field missing from some array items;
+  re-run that kind of check when touching an emitter — each language has its
+  own reserved words and optional/nullable rules.
 - `.gitignore` had a leftover Visual Studio/.NET NuGet rule
   (`**/[Pp]ackages/*`) that silently excluded the entire `packages/`
   workspace for most of this project's history. It's gone now — if a

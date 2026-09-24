@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { parse as parseToml, stringify as stringifyToml } from "smol-toml";
 import { CopyButton, Icon, SegmentedControl } from "@toolbox/ui";
+import { JsonTree } from "../shared/JsonTree";
+import { StructuredOutput } from "../shared/CodeView";
 
 type Mode = "toToml" | "toJson";
 
@@ -13,12 +15,15 @@ export function TomlTool() {
 
   let output = "";
   let error = "";
+  let data: unknown;
   if (input.trim()) {
     try {
       if (mode === "toToml") {
-        output = stringifyToml(JSON.parse(input));
+        data = JSON.parse(input);
+        output = stringifyToml(data as Record<string, unknown>);
       } else {
-        output = JSON.stringify(parseToml(input), null, 2);
+        data = parseToml(input);
+        output = JSON.stringify(data, null, 2);
       }
     } catch (e) {
       error = e instanceof Error ? e.message : "Entrée invalide.";
@@ -57,7 +62,12 @@ export function TomlTool() {
             <span className="label">{mode === "toToml" ? "TOML" : "JSON"}</span>
             <span className="meta">{output.length} car.</span>
           </div>
-          <pre className={error ? "is-error" : undefined}>{error || output}</pre>
+          <StructuredOutput
+            text={output}
+            language={mode === "toToml" ? "toml" : "json"}
+            error={error}
+            tree={data !== undefined && output ? <JsonTree data={data} /> : undefined}
+          />
           <div className="panel-tools">
             <CopyButton getText={() => output} />
           </div>

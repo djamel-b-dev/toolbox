@@ -144,7 +144,7 @@ export function Layout() {
         themeMenuAriaLabel={strings.topbar.themeMenuAriaLabel}
         languageSwitcherAriaLabel={strings.topbar.languageSwitcherAriaLabel}
         locale={locale}
-        locales={Object.values(LOCALES).map((l) => ({ code: l.meta.code, label: l.meta.code.toUpperCase() }))}
+        locales={Object.values(LOCALES).map((l) => ({ code: l.meta.code, label: l.meta.nativeLabel, flag: l.meta.flag }))}
         onChangeLocale={(code) => setLocale(code as Locale)}
       />
       <div className="shell">

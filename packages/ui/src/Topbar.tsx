@@ -1,5 +1,5 @@
 import { Icon } from "./icons";
-import { SegmentedControl } from "./SegmentedControl";
+import { LanguageMenu } from "./LanguageMenu";
 import { ThemeMenu } from "./ThemeMenu";
 
 interface TopbarProps {
@@ -13,7 +13,7 @@ interface TopbarProps {
   themeMenuAriaLabel: string;
   languageSwitcherAriaLabel: string;
   locale: string;
-  locales: { code: string; label: string }[];
+  locales: { code: string; label: string; flag: string }[];
   onChangeLocale: (code: string) => void;
 }
 
@@ -43,9 +43,7 @@ export function Topbar({
         <kbd>⌘K</kbd>
       </button>
       <div className="topbar-actions">
-        <div role="group" aria-label={languageSwitcherAriaLabel}>
-          <SegmentedControl value={locale} onChange={onChangeLocale} options={locales.map((l) => ({ value: l.code, label: l.label }))} />
-        </div>
+        <LanguageMenu value={locale} options={locales} onChange={onChangeLocale} ariaLabel={languageSwitcherAriaLabel} />
         <ThemeMenu value={theme} options={themes} onChange={onChangeTheme} ariaLabel={themeMenuAriaLabel} />
       </div>
     </header>

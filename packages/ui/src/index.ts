@@ -6,6 +6,8 @@ export { SegmentedControl } from "./SegmentedControl";
 export { ToolCard, RecentCard } from "./ToolCard";
 export { Topbar } from "./Topbar";
 export { ThemeMenu } from "./ThemeMenu";
+export { LanguageMenu } from "./LanguageMenu";
+export { Flag } from "./Flag";
 export { Rail } from "./Rail";
 export type { RailCategory, RailTool } from "./Rail";
 export { CommandPalette } from "./CommandPalette";

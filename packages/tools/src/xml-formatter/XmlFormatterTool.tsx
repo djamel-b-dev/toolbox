@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { CopyButton, Icon } from "@toolbox/ui";
+import { XmlTree } from "../shared/XmlTree";
+import { StructuredOutput } from "../shared/CodeView";
 
 function serialize(node: Element, depth: number, indent: string): string {
   const pad = indent.repeat(depth);
@@ -19,10 +21,11 @@ function serialize(node: Element, depth: number, indent: string): string {
   return `${pad}<${node.tagName}${attrs}>\n${inner}\n${pad}</${node.tagName}>`;
 }
 
-function prettyPrintXml(xml: string): string {
+function parseXml(xml: string): Document {
   const doc = new DOMParser().parseFromString(xml, "application/xml");
-  if (doc.querySelector("parsererror")) throw new Error("XML invalide.");
-  return serialize(doc.documentElement, 0, "  ");
+  const err = doc.querySelector("parsererror");
+  if (err) throw new Error("XML invalide : " + (err.textContent?.split("\n").find((l) => l.trim()) ?? ""));
+  return doc;
 }
 
 export function XmlFormatterTool() {
@@ -30,9 +33,11 @@ export function XmlFormatterTool() {
 
   let output = "";
   let error = "";
+  let doc: Document | undefined;
   if (input.trim()) {
     try {
-      output = prettyPrintXml(input);
+      doc = parseXml(input);
+      output = serialize(doc.documentElement, 0, "  ");
     } catch (e) {
       error = e instanceof Error ? e.message : "XML invalide.";
     }
@@ -53,7 +58,7 @@ export function XmlFormatterTool() {
         <div className="panel-head">
           <span className="label">Formaté</span>
         </div>
-        <pre className={error ? "is-error" : undefined}>{error || output}</pre>
+        <StructuredOutput text={output} language="xml" error={error} tree={doc ? <XmlTree doc={doc} /> : undefined} />
         <div className="panel-tools">
           <CopyButton getText={() => output} />
         </div>

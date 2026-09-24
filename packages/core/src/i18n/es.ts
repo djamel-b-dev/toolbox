@@ -1,0 +1,97 @@
+import type { Translations } from "./types";
+
+export const es: Translations = {
+  common: {
+    appName: "Toolbox",
+    localOnlyStatus: "Calculado en local — sin peticiones de red",
+  },
+  topbar: {
+    brandAriaLabel: "Toolbox, volver al inicio",
+    searchPlaceholder: "Buscar una herramienta…",
+    themeMenuAriaLabel: "Elegir un tema",
+    themes: {
+      light: "Claro",
+      dark: "Oscuro",
+      paper: "Papel",
+      sakura: "Sakura",
+      arctic: "Ártico",
+      terminal: "Terminal",
+      synthwave: "Synthwave",
+      retro: "Arcade retro",
+      web3: "Web3 neón",
+    },
+    languageSwitcherAriaLabel: "Cambiar de idioma",
+  },
+  rail: {
+    favorites: "Favoritos",
+    createTool: "Crear una herramienta",
+    myCategories: "Mis categorías",
+    categories: "Categorías",
+    allTools: "Todas las herramientas",
+    expand: (label) => `Desplegar ${label}`,
+    collapse: (label) => `Plegar ${label}`,
+  },
+  palette: {
+    ariaLabel: "Paleta de comandos",
+    inputPlaceholder: "Buscar una herramienta, p. ej. «hash», «json»…",
+    noResults: "Ninguna herramienta coincide.",
+    toolsGroup: "Herramientas",
+    previewOnlySuffix: " · solo vista previa",
+  },
+  toolCard: {
+    favoriteAriaLabel: (name) => `Añadir ${name} a favoritos`,
+  },
+  home: {
+    subtitle: "Herramientas para desarrolladores que se ejecutan por completo en tu equipo. Nada de lo que pegues aquí sale de la pestaña.",
+    viewFavorites: (count) => `Ver mis ${count} favorito${count > 1 ? "s" : ""} →`,
+    recentlyUsed: "Usadas recientemente",
+    allToolsHeading: "Todas las herramientas",
+    allToolsHint: "Todas las herramientas son plenamente funcionales.",
+  },
+  favorites: {
+    title: "Favoritos",
+    subtitle: "Las herramientas que más usas, siempre a mano.",
+    empty: "Aún no hay favoritos — haz clic en la estrella de una herramienta para añadirla aquí.",
+    browseAll: "Ver todas las herramientas →",
+  },
+  createTool: {
+    titleNew: "Crear una herramienta",
+    titleEdit: "Editar la herramienta",
+    intro:
+      "Escribe una función JavaScript que transforme una entrada en una salida. Este código se ejecuta directamente en tu navegador, con los mismos permisos que la página — usa solo código escrito por ti o en el que confíes.",
+    nameLabel: "Nombre",
+    namePlaceholder: "Mi conversor",
+    descriptionLabel: "Descripción",
+    descriptionPlaceholder: "Qué hace la herramienta, en una frase.",
+    categoryLabel: "Categoría",
+    categoryExisting: "Existente",
+    categoryNew: "Nueva",
+    chooseLabel: "Elegir",
+    newCategoryLabel: "Nombre de la nueva categoría",
+    newCategoryPlaceholder: "Mis herramientas",
+    codeLabel: "Código",
+    defaultCode: `// "input" contiene el texto del campo de entrada.
+// Devuelve la cadena que se mostrará como salida.
+return input.toUpperCase();`,
+    livePreview: "Vista previa en directo",
+    testInputLabel: "Entrada de prueba",
+    testInputDefault: "Hola, Toolbox 👋",
+    outputLabel: "Salida",
+    saveNew: "Crear la herramienta",
+    saveEdit: "Guardar los cambios",
+    errorNameRequired: "El nombre es obligatorio.",
+    errorCategoryRequired: "Elige o nombra una categoría.",
+    errorCodeRequired: "El código no puede estar vacío.",
+    errorCategoryExists:
+      "Este nombre de categoría ya existe entre las categorías integradas — elige otro o selecciona «Existente» arriba.",
+    runtimeErrorFallback: "Este código ha lanzado un error.",
+  },
+  toolPage: {
+    notFound: "Esta herramienta no existe.",
+    notReady: "Esta herramienta aún no forma parte de este prototipo.",
+    loading: "Cargando la herramienta…",
+    edit: "Editar",
+    delete: "Eliminar",
+    deleteConfirm: (name) => `¿Eliminar definitivamente la herramienta «${name}»?`,
+  },
+};

@@ -1,10 +1,14 @@
-export type Locale = "fr" | "en" | "ar";
+import type { ThemeId } from "../useTheme";
+
+export type Locale = "fr" | "en" | "es" | "ar" | "zh" | "ja";
 
 export interface LocaleMeta {
   code: Locale;
   /** Name shown in the language switcher, written in that language itself. */
   nativeLabel: string;
   dir: "ltr" | "rtl";
+  /** ISO 3166 country code of the flag shown next to the language in the switcher. */
+  flag: string;
 }
 
 /**
@@ -20,7 +24,7 @@ export interface Translations {
     brandAriaLabel: string;
     searchPlaceholder: string;
     themeMenuAriaLabel: string;
-    themes: { light: string; dark: string; paper: string; retro: string; web3: string };
+    themes: Record<ThemeId, string>;
     languageSwitcherAriaLabel: string;
   };
   rail: {

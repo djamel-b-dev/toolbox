@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { CopyButton } from "@toolbox/ui";
+import { JsonTree } from "../shared/JsonTree";
+import { StructuredOutput } from "../shared/CodeView";
 
 function base64UrlDecode(str: string) {
   const base64 = str.replace(/-/g, "+").replace(/_/g, "/");
@@ -20,6 +22,8 @@ export function JwtTool() {
 
   let header = "";
   let payload = "";
+  let headerData: unknown;
+  let payloadData: unknown;
   let error = "";
   const parts = token.trim().split(".");
   if (token.trim()) {
@@ -27,8 +31,10 @@ export function JwtTool() {
       error = "Un JWT doit contenir trois segments séparés par des points.";
     } else {
       try {
-        header = JSON.stringify(JSON.parse(base64UrlDecode(parts[0])), null, 2);
-        payload = JSON.stringify(JSON.parse(base64UrlDecode(parts[1])), null, 2);
+        headerData = JSON.parse(base64UrlDecode(parts[0]));
+        payloadData = JSON.parse(base64UrlDecode(parts[1]));
+        header = JSON.stringify(headerData, null, 2);
+        payload = JSON.stringify(payloadData, null, 2);
       } catch {
         error = "Impossible de décoder ce token — vérifiez qu'il s'agit bien d'un JWT.";
       }
@@ -72,7 +78,7 @@ export function JwtTool() {
               <div className="panel-head">
                 <span className="label">En-tête</span>
               </div>
-              <pre>{header}</pre>
+              <StructuredOutput text={header} language="json" tree={<JsonTree data={headerData} />} />
               <div className="panel-tools">
                 <CopyButton getText={() => header} label="Copier" />
               </div>
@@ -81,7 +87,7 @@ export function JwtTool() {
               <div className="panel-head">
                 <span className="label">Payload</span>
               </div>
-              <pre>{payload}</pre>
+              <StructuredOutput text={payload} language="json" tree={<JsonTree data={payloadData} />} />
               <div className="panel-tools">
                 <CopyButton getText={() => payload} label="Copier" />
               </div>

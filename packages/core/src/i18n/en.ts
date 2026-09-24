@@ -9,7 +9,17 @@ export const en: Translations = {
     brandAriaLabel: "Toolbox, back to home",
     searchPlaceholder: "Search for a tool…",
     themeMenuAriaLabel: "Choose a theme",
-    themes: { light: "Light", dark: "Dark", paper: "Paper", retro: "Retro arcade", web3: "Web3 neon" },
+    themes: {
+      light: "Light",
+      dark: "Dark",
+      paper: "Paper",
+      sakura: "Sakura",
+      arctic: "Arctic",
+      terminal: "Terminal",
+      synthwave: "Synthwave",
+      retro: "Retro arcade",
+      web3: "Web3 neon",
+    },
     languageSwitcherAriaLabel: "Change language",
   },
   rail: {

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { format, type SqlLanguage } from "sql-formatter";
 import { CopyButton, Icon, SegmentedControl } from "@toolbox/ui";
+import { CodeView } from "../shared/CodeView";
 
 const DIALECTS: { value: SqlLanguage; label: string }[] = [
   { value: "sql", label: "SQL standard" },
@@ -47,7 +48,7 @@ export function SqlFormatterTool() {
           <div className="panel-head">
             <span className="label">Formaté</span>
           </div>
-          <pre className={error ? "is-error" : undefined}>{error || output}</pre>
+          <CodeView code={error || output} language="sql" error={!!error} />
           <div className="panel-tools">
             <CopyButton getText={() => output} />
           </div>

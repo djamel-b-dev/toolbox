@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CopyButton, Icon } from "@toolbox/ui";
+import { CodeView } from "../shared/CodeView";
 
 function tokenize(cmd: string): string[] {
   const regex = /"([^"]*)"|'([^']*)'|(\S+)/g;
@@ -124,7 +125,7 @@ export function DockerComposeTool() {
         <div className="panel-head">
           <span className="label">docker-compose.yml</span>
         </div>
-        <pre>{output}</pre>
+        <CodeView code={output} language="yaml" />
         <div className="panel-tools">
           <CopyButton getText={() => output} />
         </div>
